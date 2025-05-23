@@ -28,7 +28,7 @@ Firestore를 통해 클라우드에 루틴을 저장하고, 다양한 기기 간
 | 분야        | 기술                           |
 |-------------|--------------------------------|
 | 언어        | Kotlin                         |
-| UI          | Jetpack Compose, Material3     |
+| UI          | Jetpack Compose, Material3, Material2     |
 | 네비게이션  | Navigation Compose              |
 | DI          | Hilt                           |
 | 로컬 DB     | Room                           |
