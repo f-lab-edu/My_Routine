@@ -24,14 +24,11 @@ fun BottomNavigationBar(navController: NavController) {
         contentColor = MaterialTheme.colors.onSurface,
         elevation = 8.dp
     ) {
-        // 각 슬롯의 비율을 똑같이 맞춤
         val modifier = Modifier.weight(1f)
 
-        // Slot 1 (왼쪽 아이콘 1)
         IconButton(
             onClick = {
                 navController.navigate("today") {
-                    popUpTo(navController.graph.startDestinationId) { saveState = true }
                     launchSingleTop = true
                     restoreState = true
                 }
@@ -45,11 +42,9 @@ fun BottomNavigationBar(navController: NavController) {
             )
         }
 
-        // Slot 2 (왼쪽 아이콘 2)
         IconButton(
             onClick = {
                 navController.navigate("calendar") {
-                    popUpTo(navController.graph.startDestinationId) { saveState = true }
                     launchSingleTop = true
                     restoreState = true
                 }
@@ -63,14 +58,11 @@ fun BottomNavigationBar(navController: NavController) {
             )
         }
 
-        // Slot 3 (FAB 자리 - 비워둠)
         Spacer(modifier = modifier)
 
-        // Slot 4 (오른쪽 아이콘 1)
         IconButton(
             onClick = {
                 navController.navigate("report") {
-                    popUpTo(navController.graph.startDestinationId) { saveState = true }
                     launchSingleTop = true
                     restoreState = true
                 }
@@ -84,11 +76,9 @@ fun BottomNavigationBar(navController: NavController) {
             )
         }
 
-        // Slot 5 (오른쪽 아이콘 2)
         IconButton(
             onClick = {
                 navController.navigate("settings") {
-                    popUpTo(navController.graph.startDestinationId) { saveState = true }
                     launchSingleTop = true
                     restoreState = true
                 }
