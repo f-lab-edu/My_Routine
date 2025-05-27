@@ -29,6 +29,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.myroutine.ui.screens.TodayScreen
 
 private const val TAG_MAIN_SCREEN = "MainScreen"
 
@@ -77,7 +78,7 @@ fun MyRoutineApp(onBackPressedDispatcher: OnBackPressedDispatcher) {
                     navController = navController,
                     route = Routes.TODAY
                 ) {
-                    Text("Today’s Tasks Here")
+                    TodayScreen()
                 }
             }
             composable(Routes.CALENDAR) {
