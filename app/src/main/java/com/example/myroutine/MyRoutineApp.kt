@@ -29,6 +29,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.myroutine.ui.screens.TodayScreen
 
 @Composable
 fun MainScreen() {
@@ -67,7 +68,7 @@ fun MyRoutineApp(onBackPressedDispatcher: OnBackPressedDispatcher) {
                     navController = navController,
                     route = "today"
                 ) {
-                    Text("Today’s Tasks Here")
+                    TodayScreen()
                 }
             }
             composable("calendar") {
