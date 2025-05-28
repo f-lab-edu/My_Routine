@@ -9,9 +9,12 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.myroutine.R
+import com.example.myroutine.Routes
 
 @Composable
 fun BottomNavigationBar(navController: NavController) {
@@ -28,7 +31,7 @@ fun BottomNavigationBar(navController: NavController) {
 
         IconButton(
             onClick = {
-                navController.navigate("today") {
+                navController.navigate(Routes.TODAY) {
                     launchSingleTop = true
                     restoreState = true
                 }
@@ -37,14 +40,14 @@ fun BottomNavigationBar(navController: NavController) {
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.List,
-                contentDescription = "today",
-                tint = if (currentRoute == "today") MaterialTheme.colors.primary else MaterialTheme.colors.onSurface
+                contentDescription = stringResource(R.string.today),
+                tint = if (currentRoute == Routes.TODAY) MaterialTheme.colors.primary else MaterialTheme.colors.onSurface
             )
         }
 
         IconButton(
             onClick = {
-                navController.navigate("calendar") {
+                navController.navigate(Routes.CALENDAR) {
                     launchSingleTop = true
                     restoreState = true
                 }
@@ -53,8 +56,8 @@ fun BottomNavigationBar(navController: NavController) {
         ) {
             Icon(
                 imageVector = Icons.Default.DateRange,
-                contentDescription = "calendar",
-                tint = if (currentRoute == "calendar") MaterialTheme.colors.primary else MaterialTheme.colors.onSurface
+                contentDescription = stringResource(R.string.calendar),
+                tint = if (currentRoute == Routes.CALENDAR) MaterialTheme.colors.primary else MaterialTheme.colors.onSurface
             )
         }
 
@@ -62,7 +65,7 @@ fun BottomNavigationBar(navController: NavController) {
 
         IconButton(
             onClick = {
-                navController.navigate("report") {
+                navController.navigate(Routes.REPORT) {
                     launchSingleTop = true
                     restoreState = true
                 }
@@ -71,14 +74,14 @@ fun BottomNavigationBar(navController: NavController) {
         ) {
             Icon(
                 imageVector = Icons.Default.Email,
-                contentDescription = "report",
-                tint = if (currentRoute == "report") MaterialTheme.colors.primary else MaterialTheme.colors.onSurface
+                contentDescription = stringResource(R.string.report),
+                tint = if (currentRoute == Routes.REPORT) MaterialTheme.colors.primary else MaterialTheme.colors.onSurface
             )
         }
 
         IconButton(
             onClick = {
-                navController.navigate("settings") {
+                navController.navigate(Routes.SETTINGS) {
                     launchSingleTop = true
                     restoreState = true
                 }
@@ -87,8 +90,8 @@ fun BottomNavigationBar(navController: NavController) {
         ) {
             Icon(
                 imageVector = Icons.Default.Settings,
-                contentDescription = "settings",
-                tint = if (currentRoute == "settings") MaterialTheme.colors.primary else MaterialTheme.colors.onSurface
+                contentDescription = stringResource(R.string.settings),
+                tint = if (currentRoute == Routes.SETTINGS) MaterialTheme.colors.primary else MaterialTheme.colors.onSurface
             )
         }
     }
