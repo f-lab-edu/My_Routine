@@ -10,12 +10,15 @@ activityCompose = "1.10.1"
 composeBom = "2024.09.00"
 googleGmsGoogleServices = "4.4.2"
 firebaseFirestore = "25.1.4"
+material = "1.6.0"
+navigationCompose = "2.7.7"
 hilt = "2.51.1"
 room = "2.6.1"
 ksp = "2.0.21-1.0.26"
 
 [libraries]
 # Hilt
+androidx-material = { module = "androidx.compose.material:material", version.ref = "material" }
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
 
@@ -41,6 +44,8 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
+androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
