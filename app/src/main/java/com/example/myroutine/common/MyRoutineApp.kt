@@ -1,4 +1,4 @@
-package com.example.myroutine
+package com.example.myroutine.common
 
 import BottomNavigationBar
 import android.app.Activity
@@ -41,7 +41,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.myroutine.ui.screens.TodayScreen
+import com.example.myroutine.R
+import com.example.myroutine.features.today.TodayScreen
 
 private const val TAG_MAIN_SCREEN = "MainScreen"
 

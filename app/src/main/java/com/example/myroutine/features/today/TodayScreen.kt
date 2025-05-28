@@ -1,4 +1,4 @@
-package com.example.myroutine.ui.screens
+package com.example.myroutine.features.today
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
