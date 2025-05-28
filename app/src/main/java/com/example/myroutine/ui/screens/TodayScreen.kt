@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -36,7 +37,7 @@ fun TodayScreen() {
 
     LazyColumn {
         itemsIndexed(routineList) { index, item ->
-            val backgroundColor = if (item.isDone) Color(0xFFDFF5DC) else Color.Transparent
+            val backgroundColor = Color.Transparent
             val textDecoration = if (item.isDone) TextDecoration.LineThrough else TextDecoration.None
 
             Row(
@@ -58,7 +59,8 @@ fun TodayScreen() {
                 Text(
                     text = item.title,
                     textDecoration = textDecoration,
-                    modifier = Modifier.padding(start = 8.dp)
+                    modifier = Modifier.padding(start = 8.dp),
+                    color = MaterialTheme.colorScheme.onBackground
                 )
             }
         }

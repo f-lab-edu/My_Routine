@@ -6,7 +6,18 @@ import android.util.Log
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.OnBackPressedDispatcherOwner
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.FabPosition
@@ -16,6 +27,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -58,68 +70,91 @@ fun MyRoutineApp(onBackPressedDispatcher: OnBackPressedDispatcher) {
     val navController = rememberNavController()
 
     Scaffold(
+        modifier = Modifier
+            .fillMaxSize()
+            .consumeWindowInsets(WindowInsets.systemBars),
+        contentWindowInsets = WindowInsets.systemBars, // 시스템 패딩 위임
         bottomBar = { BottomNavigationBar(navController) },
         floatingActionButton = {
-            FloatingActionButton(onClick = { navController.navigate(Routes.ADD) }) {
+            FloatingActionButton(
+                onClick = { navController.navigate(Routes.ADD) },
+                backgroundColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+            ) {
                 Icon(Icons.Default.Add, contentDescription = "Add")
             }
         },
         floatingActionButtonPosition = FabPosition.Center,
         isFloatingActionButtonDocked = true
     ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = Routes.TODAY,
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            composable(Routes.TODAY) {
-                BackPressHandler(
-                    onBackPressedDispatcher = onBackPressedDispatcher,
-                    navController = navController,
-                    route = Routes.TODAY
-                ) {
-                    TodayScreen()
+
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .padding(innerPadding)) {
+
+            // 👇 상태바 높이만큼 배경을 수동으로 그려줌
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
+                    .background(MaterialTheme.colorScheme.background)
+            )
+
+            NavHost(
+                navController = navController,
+                startDestination = Routes.TODAY,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                composable(Routes.TODAY) {
+                    BackPressHandler(
+                        onBackPressedDispatcher,
+                        navController,
+                        Routes.TODAY
+                    ) {
+                        TodayScreen()
+                    }
                 }
-            }
-            composable(Routes.CALENDAR) {
-                BackPressHandler(
-                    onBackPressedDispatcher = onBackPressedDispatcher,
-                    navController = navController,
-                    route = Routes.CALENDAR
-                ) {
-                    Text("Calendar")
+                composable(Routes.CALENDAR) {
+                    BackPressHandler(
+                        onBackPressedDispatcher,
+                        navController,
+                        Routes.CALENDAR
+                    ) {
+                        Text("Calendar")
+                    }
                 }
-            }
-            composable(Routes.REPORT) {
-                BackPressHandler(
-                    onBackPressedDispatcher = onBackPressedDispatcher,
-                    navController = navController,
-                    route = Routes.REPORT
-                ) {
-                    Text("Report")
+                composable(Routes.REPORT) {
+                    BackPressHandler(
+                        onBackPressedDispatcher,
+                        navController,
+                        Routes.REPORT
+                    ) {
+                        Text("Report")
+                    }
                 }
-            }
-            composable(Routes.SETTINGS) {
-                BackPressHandler(
-                    onBackPressedDispatcher = onBackPressedDispatcher,
-                    navController = navController,
-                    route = Routes.SETTINGS
-                ) {
-                    Text("Settings")
+                composable(Routes.SETTINGS) {
+                    BackPressHandler(
+                        onBackPressedDispatcher,
+                        navController,
+                        Routes.SETTINGS
+                    ) {
+                        Text("Settings")
+                    }
                 }
-            }
-            composable(Routes.ADD) {
-                BackPressHandler(
-                    onBackPressedDispatcher = onBackPressedDispatcher,
-                    navController = navController,
-                    route = Routes.ADD
-                ) {
-                    Text("Add Routine")
+                composable(Routes.ADD) {
+                    BackPressHandler(
+                        onBackPressedDispatcher,
+                        navController,
+                        Routes.ADD
+                    ) {
+                        Text("Add Routine")
+                    }
                 }
             }
         }
     }
 }
+
 
 @Composable
 fun BackPressHandler(
