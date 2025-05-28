@@ -45,7 +45,7 @@ android {
 
 dependencies {
     //Material2
-    implementation("androidx.compose.material:material:1.6.0")
+    implementation(libs.androidx.material)
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
