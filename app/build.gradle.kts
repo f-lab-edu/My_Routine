@@ -8,6 +8,10 @@ plugins {
     id("kotlin-kapt")
 }
 
+hilt {
+    enableAggregatingTask = false
+}
+
 android {
     namespace = "com.example.myroutine"
     compileSdk = 35
@@ -47,6 +51,7 @@ dependencies {
     //Material2
     implementation(libs.androidx.material)
 
+    implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 
