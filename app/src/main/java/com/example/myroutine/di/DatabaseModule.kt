@@ -2,9 +2,9 @@ package com.example.myroutine.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.myroutine.data.local.database.AppDatabase
-import com.example.myroutine.data.local.dao.RoutineCheckDao
-import com.example.myroutine.data.local.dao.RoutineDao
+import com.example.myroutine.data.AppDatabase
+import com.example.myroutine.data.RoutineCheckDao
+import com.example.myroutine.data.RoutineDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,11 +22,10 @@ object DatabaseModule {
         @ApplicationContext context: Context
     ): AppDatabase {
         return Room.databaseBuilder(
-                context,
-                AppDatabase::class.java,
-                "myroutine-db"
-            ).fallbackToDestructiveMigration(true) // 개발과정에서 스키마 변경 시 데이터 초기화, 추후 생산 환경에서는 제거, 마이그레이션으로 처리
-            .build()
+            context,
+            AppDatabase::class.java,
+            "myroutine-db"
+        ).build()
     }
 
     @Provides

@@ -3,9 +3,10 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.gms.google.services)
-    alias(libs.plugins.hilt.android)
-    alias(libs.plugins.ksp)
-    id("kotlin-kapt")
+}
+
+hilt {
+    enableAggregatingTask = false
 }
 
 android {
@@ -44,6 +45,10 @@ android {
 }
 
 dependencies {
+    //Material2
+    implementation(libs.androidx.material)
+
+    implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 
@@ -60,6 +65,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.firebase.firestore)
+    implementation(libs.androidx.navigation.compose)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
