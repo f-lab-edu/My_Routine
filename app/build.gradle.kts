@@ -53,11 +53,18 @@ dependencies {
 
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
+    implementation(libs.androidx.junit.ktx)
     ksp(libs.hilt.compiler)
 
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
+
+    // MockK (코루틴용)
+    testImplementation(libs.mockk)
+
+    // 코루틴 테스트
+    testImplementation(libs.kotlinx.coroutines.test)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -76,4 +83,5 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    testImplementation(kotlin("test"))
 }
