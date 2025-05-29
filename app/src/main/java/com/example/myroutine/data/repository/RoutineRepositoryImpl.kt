@@ -1,5 +1,6 @@
 package com.example.myroutine.data.repository
 
+import android.util.Log
 import com.example.myroutine.data.local.dao.RoutineCheckDao
 import com.example.myroutine.data.local.dao.RoutineDao
 import com.example.myroutine.data.local.entity.RoutineCheck
@@ -11,36 +12,55 @@ class RoutineRepositoryImpl @Inject constructor(
     private val routineDao: RoutineDao,
     private val checkDao: RoutineCheckDao
 ) : RoutineRepository {
-    override suspend fun getRoutines(): List<RoutineItem> = routineDao.getAll()
+
+    private val TAG = "RoutineRepository"
+
+    override suspend fun getRoutines(): List<RoutineItem> {
+        val routines = routineDao.getAll()
+        Log.d(TAG, "Fetched ${routines.size} routines from DB")
+        return routines
+    }
 
     override suspend fun setRoutineChecked(routineId: Int, date: LocalDate, isChecked: Boolean) {
         if (isChecked) {
+            Log.d(TAG, "Setting routineId=$routineId as CHECKED for date=$date")
             checkDao.insertCheck(RoutineCheck(routineId = routineId, date = date))
         } else {
+            Log.d(TAG, "Setting routineId=$routineId as UNCHECKED for date=$date")
             checkDao.deleteCheck(routineId, date)
         }
     }
 
     override suspend fun insertMockDataIfEmpty() {
-        if (routineDao.getAll().isEmpty()) {
+        val existing = routineDao.getAll()
+        if (existing.isEmpty()) {
             val mockData = listOf(
                 RoutineItem.mock("물 마시기"),
                 RoutineItem.mock("운동하기"),
                 RoutineItem.mock("책 읽기")
             )
+            Log.d(TAG, "Inserting mock data: ${mockData.map { it.title }}")
             routineDao.insertAll(mockData)
+        } else {
+            Log.d(TAG, "Skipping mock data insertion; ${existing.size} routines already exist")
         }
     }
 
     override suspend fun getTodayRoutines(today: LocalDate): List<RoutineItem> {
         val routines = routineDao.getAll()
+        Log.d(TAG, "Checking completion status for ${routines.size} routines on $today")
+
         val checks = routines.associateBy(
             keySelector = { it.id },
             valueTransform = { checkDao.getCheck(it.id, today) }
         )
 
-        return routines.map { routine ->
-            routine.copy(isDone = checks[routine.id] != null)
+        val result = routines.map { routine ->
+            val isDone = checks[routine.id] != null
+            Log.d(TAG, "Routine id=${routine.id}, title=${routine.title} isDone=$isDone")
+            routine.copy(isDone = isDone)
         }
+
+        return result
     }
 }
