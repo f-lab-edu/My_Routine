@@ -1,4 +1,4 @@
-package com.example.myroutine.data
+package com.example.myroutine.data.local.database
 
 import androidx.room.TypeConverter
 import java.time.LocalDate

@@ -1,5 +1,6 @@
-package com.example.myroutine.data
+package com.example.myroutine.data.repository
 
+import com.example.myroutine.data.local.entity.RoutineItem
 import java.time.LocalDate
 
 interface RoutineRepository {

@@ -2,9 +2,9 @@ package com.example.myroutine.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.myroutine.data.AppDatabase
-import com.example.myroutine.data.RoutineCheckDao
-import com.example.myroutine.data.RoutineDao
+import com.example.myroutine.data.local.database.AppDatabase
+import com.example.myroutine.data.local.dao.RoutineCheckDao
+import com.example.myroutine.data.local.dao.RoutineDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
