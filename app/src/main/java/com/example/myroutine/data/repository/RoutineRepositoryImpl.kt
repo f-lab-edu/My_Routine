@@ -48,19 +48,14 @@ class RoutineRepositoryImpl @Inject constructor(
 
     override suspend fun getTodayRoutines(today: LocalDate): List<RoutineItem> {
         val routines = routineDao.getAll()
+        val checks = checkDao.getChecksForDate(today).associateBy { it.routineId }
+
         Log.d(TAG, "Checking completion status for ${routines.size} routines on $today")
 
-        val checks = routines.associateBy(
-            keySelector = { it.id },
-            valueTransform = { checkDao.getCheck(it.id, today) }
-        )
-
-        val result = routines.map { routine ->
-            val isDone = checks[routine.id] != null
+        return routines.map { routine ->
+            val isDone = checks.containsKey(routine.id)
             Log.d(TAG, "Routine id=${routine.id}, title=${routine.title} isDone=$isDone")
             routine.copy(isDone = isDone)
         }
-
-        return result
     }
 }

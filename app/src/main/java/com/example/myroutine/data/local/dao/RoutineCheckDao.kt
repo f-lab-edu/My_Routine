@@ -18,4 +18,8 @@ interface RoutineCheckDao {
 
     @Query("DELETE FROM RoutineCheck WHERE routineId = :routineId AND date = :date")
     suspend fun deleteCheck(routineId: Int, date: LocalDate)
+
+    @Query("SELECT * FROM RoutineCheck WHERE date = :date")
+    suspend fun getChecksForDate(date: LocalDate): List<RoutineCheck>
+
 }
