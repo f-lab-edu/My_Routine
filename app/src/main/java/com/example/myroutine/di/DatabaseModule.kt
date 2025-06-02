@@ -22,10 +22,11 @@ object DatabaseModule {
         @ApplicationContext context: Context
     ): AppDatabase {
         return Room.databaseBuilder(
-            context,
-            AppDatabase::class.java,
-            "myroutine-db"
-        ).build()
+                context,
+                AppDatabase::class.java,
+                "myroutine-db"
+            ).fallbackToDestructiveMigration(true) // 개발과정에서 스키마 변경 시 데이터 초기화, 추후 생산 환경에서는 제거, 마이그레이션으로 처리
+            .build()
     }
 
     @Provides
