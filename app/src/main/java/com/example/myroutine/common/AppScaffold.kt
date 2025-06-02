@@ -60,14 +60,14 @@ fun MainScreen() {
     val onBackPressedDispatcher = (context as? OnBackPressedDispatcherOwner)?.onBackPressedDispatcher
 
     if (onBackPressedDispatcher != null) {
-        MyRoutineApp(onBackPressedDispatcher = onBackPressedDispatcher)
+        AppScaffold(onBackPressedDispatcher = onBackPressedDispatcher)
     } else {
         Log.e(TAG_MAIN_SCREEN, "OnBackPressedDispatcher를 얻을 수 없습니다.")
     }
 }
 
 @Composable
-fun MyRoutineApp(onBackPressedDispatcher: OnBackPressedDispatcher) {
+fun AppScaffold(onBackPressedDispatcher: OnBackPressedDispatcher) {
     val navController = rememberNavController()
 
     Scaffold(
@@ -171,7 +171,7 @@ fun BackPressHandler(
     val onBackPressedCallback = remember {
         object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (route == "add") {
+                if (route == Routes.ADD) {
                     navController.popBackStack() // 'add' 화면에서는 이전 화면으로 돌아감
                 } else {
                     showDialog = true // 나머지 화면에서는 다이얼로그 표시
