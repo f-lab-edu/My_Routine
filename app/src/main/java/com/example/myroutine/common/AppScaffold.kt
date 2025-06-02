@@ -42,17 +42,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.myroutine.R
+import com.example.myroutine.common.LogTags.MAIN_SCREEN
 import com.example.myroutine.features.today.TodayScreen
 
-private const val TAG_MAIN_SCREEN = "MainScreen"
-
-object Routes {
-    const val TODAY = "today"
-    const val CALENDAR = "calendar"
-    const val REPORT = "report"
-    const val SETTINGS = "settings"
-    const val ADD = "add"
-}
 
 @Composable
 fun MainScreen() {
@@ -62,7 +54,7 @@ fun MainScreen() {
     if (onBackPressedDispatcher != null) {
         AppScaffold(onBackPressedDispatcher = onBackPressedDispatcher)
     } else {
-        Log.e(TAG_MAIN_SCREEN, "OnBackPressedDispatcher를 얻을 수 없습니다.")
+        Log.e(MAIN_SCREEN, "OnBackPressedDispatcher를 얻을 수 없습니다.")
     }
 }
 
