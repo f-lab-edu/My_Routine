@@ -140,7 +140,7 @@ fun AppScaffold(onBackPressedDispatcher: OnBackPressedDispatcher) {
                         navController,
                         Routes.ADD
                     ) {
-                        Text("Add Routine")
+
                     }
                 }
             }

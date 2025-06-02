@@ -2,8 +2,8 @@ package com.example.myroutine.features.today
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.myroutine.data.RoutineItem
-import com.example.myroutine.data.RoutineRepository
+import com.example.myroutine.data.local.entity.RoutineItem
+import com.example.myroutine.data.repository.RoutineRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

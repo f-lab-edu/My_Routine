@@ -10,16 +10,16 @@ import java.time.LocalDate
 @Dao
 interface RoutineCheckDao {
 
-    @Query("SELECT * FROM RoutineCheck WHERE routineId = :routineId AND date = :date")
+    @Query("SELECT * FROM RoutineCheck WHERE routineId = :routineId AND completeDate = :date")
     suspend fun getCheck(routineId: Int, date: LocalDate): RoutineCheck?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCheck(check: RoutineCheck)
 
-    @Query("DELETE FROM RoutineCheck WHERE routineId = :routineId AND date = :date")
+    @Query("DELETE FROM RoutineCheck WHERE routineId = :routineId AND completeDate = :date")
     suspend fun deleteCheck(routineId: Int, date: LocalDate)
 
-    @Query("SELECT * FROM RoutineCheck WHERE date = :date")
+    @Query("SELECT * FROM RoutineCheck WHERE completeDate = :date")
     suspend fun getChecksForDate(date: LocalDate): List<RoutineCheck>
 
 }

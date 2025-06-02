@@ -24,7 +24,7 @@ class RoutineRepositoryImpl @Inject constructor(
     override suspend fun setRoutineChecked(routineId: Int, date: LocalDate, isChecked: Boolean) {
         if (isChecked) {
             Log.d(TAG, "Setting routineId=$routineId as CHECKED for date=$date")
-            checkDao.insertCheck(RoutineCheck(routineId = routineId, date = date))
+            checkDao.insertCheck(RoutineCheck(routineId = routineId, completeDate = date))
         } else {
             Log.d(TAG, "Setting routineId=$routineId as UNCHECKED for date=$date")
             checkDao.deleteCheck(routineId, date)
