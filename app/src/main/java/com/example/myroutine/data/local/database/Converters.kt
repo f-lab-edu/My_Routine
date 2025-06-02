@@ -6,21 +6,20 @@ import java.time.LocalTime
 
 class Converters {
     @TypeConverter
-    fun fromLocalDate(date: LocalDate?): String? = date?.toString()
+    fun fromLocalDate(date: LocalDate?): String? = date.toDbString()
 
     @TypeConverter
-    fun toLocalDate(value: String?): LocalDate? = value?.let { LocalDate.parse(it) }
+    fun toLocalDate(value: String?): LocalDate? = value.toLocalDate()
 
     @TypeConverter
-    fun fromLocalTime(time: LocalTime?): String? = time?.toString()
+    fun fromLocalTime(time: LocalTime?): String? = time.toDbString()
 
     @TypeConverter
-    fun toLocalTime(value: String?): LocalTime? = value?.let { LocalTime.parse(it) }
+    fun toLocalTime(value: String?): LocalTime? = value.toLocalTime()
 
     @TypeConverter
-    fun fromIntList(value: List<Int>?): String? = value?.joinToString(",")
+    fun fromIntList(list: List<Int>?): String? = list.toDbString()
 
     @TypeConverter
-    fun toIntList(value: String?): List<Int>? =
-        value?.split(",")?.mapNotNull { it.toIntOrNull() }
+    fun toIntList(value: String?): List<Int>? = value.toIntList()
 }
