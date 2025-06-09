@@ -43,6 +43,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.myroutine.R
 import com.example.myroutine.common.LogTags.MAIN_SCREEN
+import com.example.myroutine.features.add.AddRoutineScreen
 import com.example.myroutine.features.today.TodayScreen
 
 
@@ -140,7 +141,13 @@ fun AppScaffold(onBackPressedDispatcher: OnBackPressedDispatcher) {
                         navController,
                         Routes.ADD
                     ) {
-
+                        AddRoutineScreen(
+                            onBack = { navController.popBackStack() },
+                            onSave = {
+                                //TODO: 저장 로직 구현
+                                navController.popBackStack()
+                            }
+                        )
                     }
                 }
             }
