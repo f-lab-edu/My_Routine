@@ -1,13 +1,11 @@
 package com.example.myroutine.features.add
 
 import android.app.TimePickerDialog
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,14 +36,11 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -53,34 +48,36 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.myroutine.R
 import kotlinx.coroutines.launch
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 
 @Composable
 fun AddRoutineScreen(
     onBack: () -> Unit,
-    onSave: () -> Unit
+    onSave: () -> Unit,
+    viewModel: AddRoutineViewModel = hiltViewModel()
 ) {
-    var title by remember { mutableStateOf("") }
-    var tabIndex by remember { mutableIntStateOf(1) }
+    val title by viewModel.title.collectAsState()
+    val tabIndex by viewModel.tabIndex.collectAsState()
+    val alarmEnabled by viewModel.alarmEnabled.collectAsState()
+    val alarmTime by viewModel.alarmTime.collectAsState()
 
-    val alarmEnabled = remember { mutableStateOf(false) }
-    val alarmTime = remember { mutableStateOf(LocalTime.now()) }
+    val selectedDate by viewModel.selectedDate.collectAsState()
+    val selectedDays by viewModel.selectedDays.collectAsState()
+    val repeatIntervalText by viewModel.repeatIntervalText.collectAsState()
+    val excludeHolidays by viewModel.excludeHolidays.collectAsState()
 
-    val selectedDateMillis = remember { mutableStateOf<Long?>(null) }
-    val selectedDays = remember { mutableStateListOf<String>() }
-    val repeatIntervalText = remember { mutableStateOf("") }
-
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackBarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        snackbarHost = { SnackbarHost(snackBarHostState) }
     ) { innerPadding ->
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -105,7 +102,7 @@ fun AddRoutineScreen(
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onBackground
                 )
-                Spacer(modifier = Modifier.size(48.dp)) // 닫기 버튼 크기 맞추기용
+                Spacer(modifier = Modifier.size(48.dp)) // Close button space
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -113,7 +110,7 @@ fun AddRoutineScreen(
             // Title input
             OutlinedTextField(
                 value = title,
-                onValueChange = { title = it },
+                onValueChange = { viewModel.onTitleChange(it) },
                 label = { Text(stringResource(R.string.routine_title)) },
                 modifier = Modifier.fillMaxWidth()
             )
@@ -128,11 +125,14 @@ fun AddRoutineScreen(
                 tabs.forEachIndexed { index, tabTitle ->
                     Tab(
                         selected = tabIndex == index,
-                        onClick = { tabIndex = index },
+                        onClick = { viewModel.onTabIndexChange(index) },
                         modifier = Modifier
                             .padding(horizontal = 4.dp, vertical = 8.dp)
                             .background(
-                                color = if (tabIndex == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+                                color = if (tabIndex == index)
+                                    MaterialTheme.colorScheme.primary
+                                else
+                                    MaterialTheme.colorScheme.surfaceVariant,
                                 shape = MaterialTheme.shapes.medium
                             )
                             .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -150,53 +150,49 @@ fun AddRoutineScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Content depending on tab
+            // Tab-specific content
             when (tabIndex) {
-                0 -> OneTimeContent(selectedDateMillis)
-                1 -> SpecificDaysContent(selectedDays)
-                2 -> RepeatXDaysContent(repeatIntervalText)
+                0 -> OneTimeContent(
+                    selectedDate = selectedDate,
+                    onDateSelected = { viewModel.onSelectedDateChange(it) }
+                )
+                1 -> SpecificDaysContent(
+                    selectedDays = selectedDays,
+                    onSelectedDaysChange = { viewModel.onSelectedDaysChange(it) },
+                    excludeHolidays = excludeHolidays,
+                    onExcludeHolidaysChange = { viewModel.onExcludeHolidayToggle(it) }
+                )
+                2 -> RepeatXDaysContent(
+                    text = repeatIntervalText,
+                    onTextChange = { viewModel.onRepeatIntervalChange(it) }
+                )
             }
 
             AlarmSettingSection(
                 alarmEnabled = alarmEnabled,
-                alarmTime = alarmTime
+                alarmTime = alarmTime,
+                onAlarmToggle = { viewModel.onAlarmToggle(it) },
+                onAlarmTimeChange = { viewModel.onAlarmTimeChange(it) }
             )
 
             Spacer(modifier = Modifier.weight(1f))
 
-            val toastTitleRequired = stringResource(R.string.toast_title_required)
-            val toastDateRequired = stringResource(R.string.toast_date_required)
-            val toastDayRequired = stringResource(R.string.toast_day_required)
-            val toastRepeatRequired = stringResource(R.string.toast_repeat_required)
+            val context = LocalContext.current
 
             // Save button
             Button(
                 onClick = {
-                    val isInvalid = title.isBlank() || when (tabIndex) {
-                        0 -> selectedDateMillis.value == null
-                        1 -> selectedDays.isEmpty()
-                        2 -> repeatIntervalText.value.isBlank()
-                        else -> false
-                    }
-
-                    val errorMessage = when {
-                        title.isBlank() -> toastTitleRequired
-                        tabIndex == 0 -> toastDateRequired
-                        tabIndex == 1 -> toastDayRequired
-                        tabIndex == 2 -> toastRepeatRequired
-                        else -> null
-                    }
-
-                    if (isInvalid && errorMessage != null) {
-                        coroutineScope.launch {
-                            snackbarHostState.showSnackbar(
-                                message = errorMessage,
-                                withDismissAction = true
-                            )
+                    viewModel.saveRoutine(
+                        onSuccess = onSave,
+                        onError = { resId ->
+                            coroutineScope.launch {
+                                snackBarHostState.showSnackbar(
+                                    message = context.getString(resId),
+                                    withDismissAction = true
+                                )
+                            }
                         }
-                    } else {
-                        onSave()
-                    }
+                    )
                 },
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.large
@@ -208,14 +204,23 @@ fun AddRoutineScreen(
 }
 
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OneTimeContent(selectedDateMillis: MutableState<Long?>) {
+fun OneTimeContent(
+    selectedDate: LocalDate?,
+    onDateSelected: (LocalDate) -> Unit
+) {
     val datePickerState = rememberDatePickerState()
     val openDialog = remember { mutableStateOf(false) }
 
     LaunchedEffect(datePickerState.selectedDateMillis) {
-        selectedDateMillis.value = datePickerState.selectedDateMillis
+        datePickerState.selectedDateMillis?.let {
+            val localDate = Instant.ofEpochMilli(it)
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate()
+            onDateSelected(localDate)
+        }
     }
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -225,32 +230,39 @@ fun OneTimeContent(selectedDateMillis: MutableState<Long?>) {
 
         Text(
             color = MaterialTheme.colorScheme.onBackground,
-            text = datePickerState.selectedDateMillis?.let {
-                val localDate =
-                    Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate()
-                stringResource(R.string.selected_date, localDate.toString())
-            } ?: stringResource(R.string.no_date_selected))
+            text = selectedDate?.toString() ?: stringResource(R.string.no_date_selected)
+        )
 
         if (openDialog.value) {
-            DatePickerDialog(onDismissRequest = { openDialog.value = false }, confirmButton = {
-                TextButton(onClick = { openDialog.value = false }) {
-                    stringResource(R.string.confirm)
+            DatePickerDialog(
+                onDismissRequest = { openDialog.value = false },
+                confirmButton = {
+                    TextButton(onClick = { openDialog.value = false }) {
+                        Text(stringResource(R.string.confirm))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { openDialog.value = false }) {
+                        Text(stringResource(R.string.cancel))
+                    }
                 }
-            }, dismissButton = {
-                TextButton(onClick = { openDialog.value = false }) {
-                    stringResource(R.string.cancel)
-                }
-            }) {
+            ) {
                 DatePicker(state = datePickerState)
             }
         }
     }
 }
 
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun SpecificDaysContent(selectedDays: MutableList<String>) {
-    val days = listOf(
+fun SpecificDaysContent(
+    selectedDays: List<Int>,
+    onSelectedDaysChange: (List<Int>) -> Unit,
+    excludeHolidays: Boolean,
+    onExcludeHolidaysChange: (Boolean) -> Unit
+) {
+    val dayLabels = listOf(
         stringResource(R.string.sun),
         stringResource(R.string.mon),
         stringResource(R.string.tue),
@@ -259,28 +271,33 @@ fun SpecificDaysContent(selectedDays: MutableList<String>) {
         stringResource(R.string.fri),
         stringResource(R.string.sat)
     )
-    val excludeHolidays = remember { mutableStateOf(false) }
 
     Text(
         stringResource(R.string.repeat),
         style = MaterialTheme.typography.titleLarge,
         color = MaterialTheme.colorScheme.onBackground
     )
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        days.forEach { day ->
+        dayLabels.forEachIndexed { index, label ->
+            val dayNum = index + 1 // Sunday = 1
+            val isSelected = selectedDays.contains(dayNum)
+
             Box(modifier = Modifier.weight(1f)) {
                 FilterChip(
-                    selected = selectedDays.contains(day),
+                    selected = isSelected,
                     onClick = {
-                        if (selectedDays.contains(day)) selectedDays.remove(day)
-                        else selectedDays.add(day)
+                        val newList = selectedDays.toMutableList().apply {
+                            if (isSelected) remove(dayNum) else add(dayNum)
+                        }
+                        onSelectedDaysChange(newList)
                     },
                     label = {
                         Text(
-                            text = day,
+                            text = label,
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.Center,
                             maxLines = 1
@@ -291,7 +308,6 @@ fun SpecificDaysContent(selectedDays: MutableList<String>) {
             }
         }
     }
-
 
     Spacer(modifier = Modifier.height(16.dp))
 
@@ -305,10 +321,12 @@ fun SpecificDaysContent(selectedDays: MutableList<String>) {
             color = MaterialTheme.colorScheme.onBackground
         )
         Switch(
-            checked = excludeHolidays.value, onCheckedChange = { excludeHolidays.value = it })
+            checked = excludeHolidays,
+            onCheckedChange = onExcludeHolidaysChange
+        )
     }
 
-    if (excludeHolidays.value) {
+    if (excludeHolidays) {
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = stringResource(R.string.holiday_exclusion_note),
@@ -318,20 +336,28 @@ fun SpecificDaysContent(selectedDays: MutableList<String>) {
     }
 }
 
+
 @Composable
-fun RepeatXDaysContent(intervalText: MutableState<String>) {
+fun RepeatXDaysContent(
+    text: String,
+    onTextChange: (String) -> Unit
+) {
     OutlinedTextField(
-        value = intervalText.value,
-        onValueChange = { intervalText.value = it.filter { c -> c.isDigit() } },
+        value = text,
+        onValueChange = { onTextChange(it.filter { c -> c.isDigit() }) },
         label = { Text(stringResource(R.string.repeat_every_x_days)) },
         modifier = Modifier.fillMaxWidth(),
         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
     )
 }
 
+
 @Composable
 fun AlarmSettingSection(
-    alarmEnabled: MutableState<Boolean>, alarmTime: MutableState<LocalTime>
+    alarmEnabled: Boolean,
+    alarmTime: LocalTime,
+    onAlarmToggle: (Boolean) -> Unit,
+    onAlarmTimeChange: (LocalTime) -> Unit
 ) {
     val context = LocalContext.current
     val showDialog = remember { mutableStateOf(false) }
@@ -340,8 +366,9 @@ fun AlarmSettingSection(
         Text(
             stringResource(R.string.alarm),
             style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onBackground,
+            color = MaterialTheme.colorScheme.onBackground
         )
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -352,13 +379,15 @@ fun AlarmSettingSection(
                 color = MaterialTheme.colorScheme.onBackground
             )
             Switch(
-                checked = alarmEnabled.value, onCheckedChange = {
-                    alarmEnabled.value = it
+                checked = alarmEnabled,
+                onCheckedChange = {
+                    onAlarmToggle(it)
                     if (it) showDialog.value = true
-                })
+                }
+            )
         }
 
-        if (alarmEnabled.value) {
+        if (alarmEnabled) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -367,8 +396,8 @@ fun AlarmSettingSection(
                 Text(
                     stringResource(
                         R.string.alarm_time,
-                        alarmTime.value.hour,
-                        alarmTime.value.minute
+                        alarmTime.hour,
+                        alarmTime.minute
                     ),
                     color = MaterialTheme.colorScheme.onBackground
                 )
@@ -380,29 +409,30 @@ fun AlarmSettingSection(
 
         if (showDialog.value) {
             TimePickerDialog(
-                context, { _, hour: Int, minute: Int ->
-                    alarmTime.value = LocalTime.of(hour, minute)
+                context,
+                { _, hour: Int, minute: Int ->
+                    onAlarmTimeChange(LocalTime.of(hour, minute))
                     showDialog.value = false
                 },
-                alarmTime.value.hour,
-                alarmTime.value.minute,
+                alarmTime.hour,
+                alarmTime.minute,
                 true
             ).apply {
                 setOnCancelListener {
                     showDialog.value = false
-                    alarmEnabled.value = false
+                    onAlarmToggle(false)
                 }
                 setButton(
                     TimePickerDialog.BUTTON_NEGATIVE,
                     context.getString(R.string.cancel)
                 ) { _, _ ->
                     showDialog.value = false
-                    alarmEnabled.value = false
+                    onAlarmToggle(false)
                 }
             }.show()
         }
-
     }
 }
+
 
 

@@ -13,4 +13,7 @@ interface RoutineDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(routines: List<RoutineItem>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(routine: RoutineItem)
 }
