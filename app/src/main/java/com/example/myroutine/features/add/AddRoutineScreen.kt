@@ -283,7 +283,8 @@ fun SpecificDaysContent(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         dayLabels.forEachIndexed { index, label ->
-            val dayNum = index + 1 // Sunday = 1
+            // SUN(0) → 7, MON(1) → 1, ..., SAT(6) → 6
+            val dayNum = if (index == 0) 7 else index
             val isSelected = selectedDays.contains(dayNum)
 
             Box(modifier = Modifier.weight(1f)) {

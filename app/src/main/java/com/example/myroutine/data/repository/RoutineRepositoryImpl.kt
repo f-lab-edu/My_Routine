@@ -3,6 +3,8 @@ package com.example.myroutine.data.repository
 import android.util.Log
 import com.example.myroutine.data.local.dao.RoutineCheckDao
 import com.example.myroutine.data.local.dao.RoutineDao
+import com.example.myroutine.data.local.entity.HolidayType
+import com.example.myroutine.data.local.entity.RepeatType
 import com.example.myroutine.data.local.entity.RoutineCheck
 import com.example.myroutine.data.local.entity.RoutineItem
 import java.time.LocalDate
@@ -35,31 +37,39 @@ class RoutineRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun insertMockDataIfEmpty() {
-        val existing = routineDao.getAll()
-        if (existing.isEmpty()) {
-            val mockData = listOf(
-                RoutineItem.mock("물 마시기"),
-                RoutineItem.mock("운동하기"),
-                RoutineItem.mock("책 읽기")
-            )
-            Log.d(TAG, "Inserting mock data: ${mockData.map { it.title }}")
-            routineDao.insertAll(mockData)
-        } else {
-            Log.d(TAG, "Skipping mock data insertion; ${existing.size} routines already exist")
-        }
-    }
-
     override suspend fun getTodayRoutines(today: LocalDate): List<RoutineItem> {
         val routines = routineDao.getAll()
         val checks = checkDao.getChecksForDate(today).associateBy { it.routineId }
+        val todayDayOfWeek = today.dayOfWeek.value // 월=1, ..., 일=7
 
-        Log.d(TAG, "Checking completion status for ${routines.size} routines on $today")
+        val filtered = routines.filter { routine ->
+            when (routine.repeatType) {
+                RepeatType.ONCE -> routine.specificDate == today
 
-        return routines.map { routine ->
+                RepeatType.WEEKLY -> routine.repeatDays?.contains(todayDayOfWeek) == true
+
+                RepeatType.WEEKDAY_HOLIDAY -> {
+                    routine.holidayType == HolidayType.WEEKDAY && todayDayOfWeek in 1..5
+                    // TODO: 공휴일 데이터 기반 분리 필요
+                }
+
+                RepeatType.EVERY_X_DAYS -> {
+                    val start = routine.startDate
+                    val interval = routine.repeatIntervalDays
+                    if (start != null && interval != null) {
+                        val daysBetween = java.time.temporal.ChronoUnit.DAYS.between(start, today)
+                        daysBetween >= 0 && daysBetween % interval == 0L
+                    } else false
+                }
+
+                RepeatType.NONE -> false
+            }
+        }
+
+        return filtered.map { routine ->
             val isDone = checks.containsKey(routine.id)
-            Log.d(TAG, "Routine id=${routine.id}, title=${routine.title} isDone=$isDone")
             routine.copy(isDone = isDone)
         }
     }
+
 }

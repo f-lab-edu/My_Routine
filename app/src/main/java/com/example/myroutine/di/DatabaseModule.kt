@@ -22,10 +22,8 @@ object DatabaseModule {
         @ApplicationContext context: Context
     ): AppDatabase {
         return Room.databaseBuilder(
-            context,
-            AppDatabase::class.java,
-            "myroutine-db"
-        ).build()
+            context, AppDatabase::class.java, "myroutine-db"
+        ).fallbackToDestructiveMigration(true).build()
     }
 
     @Provides

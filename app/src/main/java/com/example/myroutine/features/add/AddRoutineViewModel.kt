@@ -1,7 +1,6 @@
 package com.example.myroutine.features.add
 
 import android.util.Log
-import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myroutine.R
@@ -112,6 +111,8 @@ class AddRoutineViewModel @Inject constructor(
         val repeatDays: List<Int>?
         val holidayType: HolidayType?
         val repeatType: RepeatType
+        val repeatIntervalDays: Int?
+        val startDate: LocalDate?
 
         when (tabIndex) {
             0 -> {
@@ -124,6 +125,8 @@ class AddRoutineViewModel @Inject constructor(
                 repeatType = RepeatType.ONCE
                 repeatDays = null
                 holidayType = null
+                repeatIntervalDays = null
+                startDate = null
             }
 
             1 -> {
@@ -136,18 +139,28 @@ class AddRoutineViewModel @Inject constructor(
                 specificDate = null
                 repeatType = if (_excludeHolidays.value) RepeatType.WEEKDAY_HOLIDAY else RepeatType.WEEKLY
                 holidayType = if (_excludeHolidays.value) HolidayType.WEEKDAY else null
+                repeatIntervalDays = null
+                startDate = null
             }
 
             2 -> {
                 if (_repeatIntervalText.value.isBlank()) {
-                    Log.w(TAG, "Validation failed: repeat interval text is empty")
                     onError(R.string.toast_repeat_required)
                     return
                 }
+
+                val interval = _repeatIntervalText.value.toIntOrNull()
+                if (interval == null || interval <= 0) {
+                    onError(R.string.toast_repeat_required)
+                    return
+                }
+
                 specificDate = null
                 repeatDays = null
                 holidayType = null
-                repeatType = RepeatType.NONE
+                repeatType = RepeatType.EVERY_X_DAYS
+                startDate = LocalDate.now()
+                repeatIntervalDays = interval
             }
 
             else -> {
@@ -156,6 +169,8 @@ class AddRoutineViewModel @Inject constructor(
                 repeatDays = null
                 holidayType = null
                 repeatType = RepeatType.NONE
+                repeatIntervalDays = null
+                startDate = null
             }
         }
 
@@ -165,7 +180,9 @@ class AddRoutineViewModel @Inject constructor(
             specificDate = specificDate,
             repeatDays = repeatDays,
             holidayType = holidayType,
-            alarmTime = if (_alarmEnabled.value) _alarmTime.value else null
+            alarmTime = if (_alarmEnabled.value) _alarmTime.value else null,
+            repeatIntervalDays = repeatIntervalDays,
+            startDate = startDate
         )
 
         Log.d(TAG, "Saving routine: $routine")
