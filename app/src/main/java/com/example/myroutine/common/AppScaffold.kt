@@ -143,10 +143,7 @@ fun AppScaffold(onBackPressedDispatcher: OnBackPressedDispatcher) {
                     ) {
                         AddRoutineScreen(
                             onBack = { navController.popBackStack() },
-                            onSave = {
-                                //TODO: 저장 로직 구현
-                                navController.popBackStack()
-                            }
+                            onSave = { navController.popBackStack() }
                         )
                     }
                 }
