@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">MyRoutine</string>
-    <string name="quit_app">Quite APP</string>
-    <string name="q_quite_app">Quite APP?</string>
+    <string name="quit_app">Quit APP</string>
+    <string name="q_quit_app">Quit APP?</string>
     <string name="quit">Quit</string>
     <string name="cancel">Cancel</string>
     <string name="today">today</string>

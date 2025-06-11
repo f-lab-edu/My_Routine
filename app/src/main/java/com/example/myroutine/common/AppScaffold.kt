@@ -193,7 +193,7 @@ fun BackPressHandler(
         AlertDialog(
             onDismissRequest = { showDialog = false },
             title = { Text(stringResource(R.string.quit_app)) },
-            text = { Text(stringResource(R.string.q_quite_app)) },
+            text = { Text(stringResource(R.string.q_quit_app)) },
             confirmButton = {
                 Button(onClick = {
                     activity?.finish() // 앱 종료
