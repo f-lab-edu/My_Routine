@@ -58,6 +58,14 @@ import java.time.Instant
 import java.time.LocalTime
 import java.time.ZoneId
 
+data class RoutineInputState(
+    val title: String,
+    val tabIndex: Int,
+    val selectedDateMillis: MutableState<Long?>,
+    val selectedDays: List<String>,
+    val repeatIntervalText: MutableState<String>
+)
+
 @Composable
 fun AddRoutineScreen(
     onBack: () -> Unit,
@@ -76,6 +84,14 @@ fun AddRoutineScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
+    val inputState = RoutineInputState(
+        title = title,
+        tabIndex = tabIndex,
+        selectedDateMillis = selectedDateMillis,
+        selectedDays = selectedDays,
+        repeatIntervalText = repeatIntervalText
+    )
+
     Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { innerPadding ->
         Column(
             modifier = Modifier
@@ -91,11 +107,7 @@ fun AddRoutineScreen(
             AlarmSettingSection(alarmEnabled, alarmTime)
             Spacer(modifier = Modifier.weight(1f))
             SaveButton(
-                title = title,
-                tabIndex = tabIndex,
-                selectedDateMillis = selectedDateMillis,
-                selectedDays = selectedDays,
-                repeatIntervalText = repeatIntervalText,
+                inputState = inputState,
                 snackbarHostState = snackbarHostState,
                 coroutineScope = coroutineScope,
                 onSave = onSave
@@ -179,11 +191,7 @@ private fun RoutineTabContent(
 
 @Composable
 private fun SaveButton(
-    title: String,
-    tabIndex: Int,
-    selectedDateMillis: MutableState<Long?>,
-    selectedDays: List<String>,
-    repeatIntervalText: MutableState<String>,
+    inputState: RoutineInputState,
     snackbarHostState: SnackbarHostState,
     coroutineScope: CoroutineScope,
     onSave: () -> Unit
@@ -196,10 +204,10 @@ private fun SaveButton(
     Button(
         onClick = {
             val errorMessage = when {
-                title.isBlank() -> toastTitleRequired
-                tabIndex == 0 && selectedDateMillis.value == null -> toastDateRequired
-                tabIndex == 1 && selectedDays.isEmpty() -> toastDayRequired
-                tabIndex == 2 && repeatIntervalText.value.isBlank() -> toastRepeatRequired
+                inputState.title.isBlank() -> toastTitleRequired
+                inputState.tabIndex == 0 && inputState.selectedDateMillis.value == null -> toastDateRequired
+                inputState.tabIndex == 1 && inputState.selectedDays.isEmpty() -> toastDayRequired
+                inputState.tabIndex == 2 && inputState.repeatIntervalText.value.isBlank() -> toastRepeatRequired
                 else -> null
             }
 
