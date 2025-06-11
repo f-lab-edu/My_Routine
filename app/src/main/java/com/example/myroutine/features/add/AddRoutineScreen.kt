@@ -52,6 +52,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.myroutine.R
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalTime
@@ -75,135 +76,148 @@ fun AddRoutineScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) }
-    ) { innerPadding ->
-
+    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
                 .padding(innerPadding)
         ) {
-            // Top bar
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = onBack) {
-                    Icon(
-                        Icons.Default.Close,
-                        contentDescription = stringResource(R.string.close),
-                        tint = MaterialTheme.colorScheme.onBackground
-                    )
-                }
-                Text(
-                    text = stringResource(R.string.new_routine),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                Spacer(modifier = Modifier.size(48.dp)) // 닫기 버튼 크기 맞추기용
-            }
-
+            TopBar(onBack)
+            TitleInput(title) { title = it }
+            RoutineTabRow(tabIndex) { tabIndex = it }
             Spacer(modifier = Modifier.height(16.dp))
-
-            // Title input
-            OutlinedTextField(
-                value = title,
-                onValueChange = { title = it },
-                label = { Text(stringResource(R.string.routine_title)) },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            // Tabs
-            TabRow(selectedTabIndex = tabIndex, indicator = {}, divider = {}) {
-                val tabs = listOf(
-                    stringResource(R.string.tab_one_time),
-                    stringResource(R.string.tab_specific_days),
-                    stringResource(R.string.tab_repeat_x_days)
-                )
-                tabs.forEachIndexed { index, tabTitle ->
-                    Tab(
-                        selected = tabIndex == index,
-                        onClick = { tabIndex = index },
-                        modifier = Modifier
-                            .padding(horizontal = 4.dp, vertical = 8.dp)
-                            .background(
-                                color = if (tabIndex == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
-                                shape = MaterialTheme.shapes.medium
-                            )
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                    ) {
-                        Text(
-                            text = tabTitle,
-                            color = if (tabIndex == index)
-                                MaterialTheme.colorScheme.onPrimary
-                            else
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Content depending on tab
-            when (tabIndex) {
-                0 -> OneTimeContent(selectedDateMillis)
-                1 -> SpecificDaysContent(selectedDays)
-                2 -> RepeatXDaysContent(repeatIntervalText)
-            }
-
-            AlarmSettingSection(
-                alarmEnabled = alarmEnabled,
-                alarmTime = alarmTime
-            )
-
+            RoutineTabContent(tabIndex, selectedDateMillis, selectedDays, repeatIntervalText)
+            AlarmSettingSection(alarmEnabled, alarmTime)
             Spacer(modifier = Modifier.weight(1f))
+            SaveButton(
+                title = title,
+                tabIndex = tabIndex,
+                selectedDateMillis = selectedDateMillis,
+                selectedDays = selectedDays,
+                repeatIntervalText = repeatIntervalText,
+                snackbarHostState = snackbarHostState,
+                coroutineScope = coroutineScope,
+                onSave = onSave
+            )
+        }
+    }
+}
 
-            val toastTitleRequired = stringResource(R.string.toast_title_required)
-            val toastDateRequired = stringResource(R.string.toast_date_required)
-            val toastDayRequired = stringResource(R.string.toast_day_required)
-            val toastRepeatRequired = stringResource(R.string.toast_repeat_required)
+@Composable
+private fun TopBar(onBack: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(onClick = onBack) {
+            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close))
+        }
+        Text(stringResource(R.string.new_routine), style = MaterialTheme.typography.titleLarge)
+        Spacer(modifier = Modifier.size(48.dp))
+    }
+    Spacer(modifier = Modifier.height(16.dp))
+}
 
-            // Save button
-            Button(
-                onClick = {
-                    val isInvalid = title.isBlank() || when (tabIndex) {
-                        0 -> selectedDateMillis.value == null
-                        1 -> selectedDays.isEmpty()
-                        2 -> repeatIntervalText.value.isBlank()
-                        else -> false
-                    }
+@Composable
+private fun TitleInput(title: String, onTitleChange: (String) -> Unit) {
+    OutlinedTextField(
+        value = title,
+        onValueChange = onTitleChange,
+        label = { Text(stringResource(R.string.routine_title)) },
+        modifier = Modifier.fillMaxWidth()
+    )
+}
 
-                    val errorMessage = when {
-                        title.isBlank() -> toastTitleRequired
-                        tabIndex == 0 -> toastDateRequired
-                        tabIndex == 1 -> toastDayRequired
-                        tabIndex == 2 -> toastRepeatRequired
-                        else -> null
-                    }
-
-                    if (isInvalid && errorMessage != null) {
-                        coroutineScope.launch {
-                            snackbarHostState.showSnackbar(
-                                message = errorMessage,
-                                withDismissAction = true
-                            )
-                        }
-                    } else {
-                        onSave()
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(),
-                shape = MaterialTheme.shapes.large
+@Composable
+private fun RoutineTabRow(selectedIndex: Int, onTabSelected: (Int) -> Unit) {
+    val tabs = listOf(
+        stringResource(R.string.tab_one_time),
+        stringResource(R.string.tab_specific_days),
+        stringResource(R.string.tab_repeat_x_days)
+    )
+    TabRow(selectedTabIndex = selectedIndex, indicator = {}, divider = {}) {
+        tabs.forEachIndexed { index, title ->
+            Tab(
+                selected = selectedIndex == index,
+                onClick = { onTabSelected(index) },
+                modifier = Modifier
+                    .padding(horizontal = 4.dp, vertical = 8.dp)
+                    .background(
+                        color = if (selectedIndex == index) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.surfaceVariant,
+                        shape = MaterialTheme.shapes.medium
+                    )
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
-                Text(stringResource(R.string.save))
+                Text(
+                    text = title,
+                    color = if (selectedIndex == index)
+                        MaterialTheme.colorScheme.onPrimary
+                    else
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }
 }
+
+@Composable
+private fun RoutineTabContent(
+    tabIndex: Int,
+    selectedDateMillis: MutableState<Long?>,
+    selectedDays: MutableList<String>,
+    repeatIntervalText: MutableState<String>
+) {
+    when (tabIndex) {
+        0 -> OneTimeContent(selectedDateMillis)
+        1 -> SpecificDaysContent(selectedDays)
+        2 -> RepeatXDaysContent(repeatIntervalText)
+    }
+}
+
+@Composable
+private fun SaveButton(
+    title: String,
+    tabIndex: Int,
+    selectedDateMillis: MutableState<Long?>,
+    selectedDays: List<String>,
+    repeatIntervalText: MutableState<String>,
+    snackbarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope,
+    onSave: () -> Unit
+) {
+    val toastTitleRequired = stringResource(R.string.toast_title_required)
+    val toastDateRequired = stringResource(R.string.toast_date_required)
+    val toastDayRequired = stringResource(R.string.toast_day_required)
+    val toastRepeatRequired = stringResource(R.string.toast_repeat_required)
+
+    Button(
+        onClick = {
+            val errorMessage = when {
+                title.isBlank() -> toastTitleRequired
+                tabIndex == 0 && selectedDateMillis.value == null -> toastDateRequired
+                tabIndex == 1 && selectedDays.isEmpty() -> toastDayRequired
+                tabIndex == 2 && repeatIntervalText.value.isBlank() -> toastRepeatRequired
+                else -> null
+            }
+
+            if (errorMessage != null) {
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(errorMessage, withDismissAction = true)
+                }
+            } else {
+                onSave()
+            }
+        },
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large
+    ) {
+        Text(stringResource(R.string.save))
+    }
+}
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
