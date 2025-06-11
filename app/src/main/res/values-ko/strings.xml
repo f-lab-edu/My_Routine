@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">MyRoutine</string>
     <string name="quit_app">앱 종료</string>
-    <string name="q_quite_app">앱을 종료하시겠습니까?</string>
+    <string name="q_quit_app">앱을 종료하시겠습니까?</string>
     <string name="quit">종료</string>
     <string name="cancel">취소</string>
     <string name="today">오늘</string>
@@ -10,4 +10,34 @@
     <string name="report">리포트</string>
     <string name="settings">설정</string>
     <string name="today_todo">오늘 할 일</string>
+    <string name="routine_title">루틴 제목</string>
+    <string name="tab_one_time">한 번만</string>
+    <string name="tab_specific_days">특정 요일</string>
+    <string name="tab_repeat_x_days">X일마다 반복</string>
+    <string name="select_date">날짜 선택</string>
+    <string name="selected_date">선택한 날짜: %1$s</string>
+    <string name="no_date_selected">날짜가 선택되지 않았습니다.</string>
+    <string name="repeat">반복</string>
+    <string name="exclude_holidays">공휴일 제외</string>
+    <string name="repeat_every_x_days">X일마다 반복</string>
+    <string name="alarm">알람</string>
+    <string name="enable_alarm">알람 켜기</string>
+    <string name="alarm_time">알람 시간: %1$d시 %2$d분</string>
+    <string name="select_time">시간 선택</string>
+    <string name="save">저장</string>
+    <string name="close">닫기</string>
+    <string name="confirm">확인</string>
+    <string name="new_routine">루틴 등록</string>
+    <string name="sun">일</string>
+    <string name="mon">월</string>
+    <string name="tue">화</string>
+    <string name="wed">수</string>
+    <string name="thu">목</string>
+    <string name="fri">금</string>
+    <string name="sat">토</string>
+    <string name="holiday_exclusion_note">공휴일이더라도 토요일과 일요일은 반복 요일에 포함됩니다.</string>
+    <string name="toast_date_required">날짜를 선택해주세요.</string>
+    <string name="toast_day_required">요일을 하나 이상 선택해주세요.</string>
+    <string name="toast_repeat_required">반복 주기를 입력해주세요.</string>
+    <string name="toast_title_required">루틴 제목을 입력해주세요.</string>
 </resources>
