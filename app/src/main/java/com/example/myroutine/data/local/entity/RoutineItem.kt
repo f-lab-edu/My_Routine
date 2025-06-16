@@ -29,7 +29,19 @@ data class RoutineItem(
 
     // 알람 설정 시간 (nullable이면 알람 없음)
     val alarmTime: LocalTime? = null
-)
+){
+    companion object {
+        fun mock(
+            title: String,
+            isDone: Boolean = false
+        ): RoutineItem {
+            return RoutineItem(
+                title = title,
+                isDone = isDone
+            )
+        }
+    }
+}
 
 enum class RepeatType {
     NONE,           // 반복 없음
