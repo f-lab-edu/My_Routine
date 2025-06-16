@@ -15,6 +15,10 @@ class RoutineRepositoryImpl @Inject constructor(
 
     private val TAG = "RoutineRepository"
 
+    override suspend fun insertRoutine(routine: RoutineItem) {
+        routineDao.insert(routine)
+    }
+
     override suspend fun getRoutines(): List<RoutineItem> {
         val routines = routineDao.getAll()
         Log.d(TAG, "Fetched ${routines.size} routines from DB")
