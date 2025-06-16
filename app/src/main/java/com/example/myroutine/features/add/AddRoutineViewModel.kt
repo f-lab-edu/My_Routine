@@ -1,9 +1,9 @@
 package com.example.myroutine.features.add
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myroutine.R
+import com.example.myroutine.common.LogWrapper
 import com.example.myroutine.data.local.entity.HolidayType
 import com.example.myroutine.data.local.entity.RepeatType
 import com.example.myroutine.data.local.entity.RoutineItem
@@ -41,28 +41,28 @@ class AddRoutineViewModel @Inject constructor(
 
     // 상태 변경 함수
     fun onTitleChange(newTitle: String) {
-        Log.d(TAG, "onTitleChange: $newTitle")
+        LogWrapper.d(TAG, "onTitleChange: $newTitle")
         _title.value = newTitle
     }
 
     fun onTabIndexChange(index: Int) {
-        Log.d(TAG, "onTabIndexChange: $index")
+        LogWrapper.d(TAG, "onTabIndexChange: $index")
         _tabIndex.value = index
     }
 
     fun onSelectedDateChange(date: LocalDate?) {
-        Log.d(TAG, "onSelectedDateChange: $date")
+        LogWrapper.d(TAG, "onSelectedDateChange: $date")
         _selectedDate.value = date
     }
 
 
     fun onAlarmToggle(enabled: Boolean) {
-        Log.d(TAG, "onAlarmToggle: $enabled")
+        LogWrapper.d(TAG, "onAlarmToggle: $enabled")
         _alarmEnabled.value = enabled
     }
 
     fun onAlarmTimeChange(time: LocalTime) {
-        Log.d(TAG, "onAlarmTimeChange: $time")
+        LogWrapper.d(TAG, "onAlarmTimeChange: $time")
         _alarmTime.value = time
     }
 
@@ -74,12 +74,12 @@ class AddRoutineViewModel @Inject constructor(
         val title = _title.value.trim()
         val tabIndex = _tabIndex.value
 
-        Log.d(TAG, "saveRoutine() called")
-        Log.d(TAG, "Current title: '$title'")
-        Log.d(TAG, "Tab index: $tabIndex")
+        LogWrapper.d(TAG, "saveRoutine() called")
+        LogWrapper.d(TAG, "Current title: '$title'")
+        LogWrapper.d(TAG, "Tab index: $tabIndex")
 
         if (title.isEmpty()) {
-            Log.w(TAG, "Validation failed: title is empty")
+            LogWrapper.w(TAG, "Validation failed: title is empty")
             onError(R.string.toast_title_required)
             return
         }
@@ -95,7 +95,7 @@ class AddRoutineViewModel @Inject constructor(
             0 -> {
                 specificDate = _selectedDate.value
                 if (specificDate == null) {
-                    Log.w(TAG, "Validation failed: specific date not selected")
+                    LogWrapper.w(TAG, "Validation failed: specific date not selected")
                     onError(R.string.toast_date_required)
                     return
                 }
@@ -107,7 +107,7 @@ class AddRoutineViewModel @Inject constructor(
             }
 
             else -> {
-                Log.w(TAG, "Validation failed: invalid tab index $tabIndex")
+                LogWrapper.w(TAG, "Validation failed: invalid tab index $tabIndex")
                 specificDate = null
                 repeatDays = null
                 holidayType = null
@@ -128,11 +128,11 @@ class AddRoutineViewModel @Inject constructor(
             startDate = startDate
         )
 
-        Log.d(TAG, "Saving routine: $routine")
+        LogWrapper.d(TAG, "Saving routine: $routine")
 
         viewModelScope.launch {
             repository.insertRoutine(routine)
-            Log.d(TAG, "Routine saved successfully")
+            LogWrapper.d(TAG, "Routine saved successfully")
             onSuccess()
         }
     }
