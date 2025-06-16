@@ -24,26 +24,18 @@ data class RoutineItem(
     // 평일/공휴일 구분용, repeatType == WEEKDAY_HOLIDAY 인 경우 사용
     val holidayType: HolidayType? = null,
 
+    val repeatIntervalDays: Int? = null,           // N일 주기
+    val startDate: LocalDate? = null,              // 반복 시작일 기준
+
     // 알람 설정 시간 (nullable이면 알람 없음)
     val alarmTime: LocalTime? = null
-){
-    companion object {
-        fun mock(
-            title: String,
-            isDone: Boolean = false
-        ): RoutineItem {
-            return RoutineItem(
-                title = title,
-                isDone = isDone
-            )
-        }
-    }
-}
+)
 
 enum class RepeatType {
     NONE,           // 반복 없음
     WEEKLY,         // 요일 반복
     ONCE,           // 특정 날짜
+    EVERY_X_DAYS,   // X일마다 반복
     WEEKDAY_HOLIDAY // 평일/공휴일 구분
 }
 
