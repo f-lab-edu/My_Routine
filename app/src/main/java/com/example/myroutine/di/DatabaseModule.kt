@@ -25,7 +25,7 @@ object DatabaseModule {
             context,
             AppDatabase::class.java,
             "myroutine-db"
-        ).build()
+        ).fallbackToDestructiveMigration(true).build()
     }
 
     @Provides
