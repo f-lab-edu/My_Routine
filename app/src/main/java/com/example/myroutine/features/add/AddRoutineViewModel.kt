@@ -63,12 +63,12 @@ class AddRoutineViewModel @Inject constructor(
     }
 
     fun onSelectedDaysChange(days: List<Int>) {
-        Log.d(TAG, "onSelectedDaysChange: $days")
+        L.d(TAG, "onSelectedDaysChange: $days")
         _selectedDays.value = days
     }
 
     fun onExcludeHolidayToggle(value: Boolean) {
-        Log.d(TAG, "onExcludeHolidayToggle: $value")
+        L.d(TAG, "onExcludeHolidayToggle: $value")
         _excludeHolidays.value = value
     }
 
