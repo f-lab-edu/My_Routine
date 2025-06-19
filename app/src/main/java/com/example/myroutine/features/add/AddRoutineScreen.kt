@@ -3,7 +3,9 @@ package com.example.myroutine.features.add
 import android.app.TimePickerDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +19,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -41,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.myroutine.R
@@ -62,6 +66,8 @@ fun AddRoutineScreen(
     val alarmTime by viewModel.alarmTime.collectAsState()
 
     val selectedDate by viewModel.selectedDate.collectAsState()
+    val selectedDays by viewModel.selectedDays.collectAsState()
+    val excludeHolidays by viewModel.excludeHolidays.collectAsState()
 
     val snackBarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -147,6 +153,13 @@ fun AddRoutineScreen(
                     selectedDate = selectedDate,
                     onDateSelected = { viewModel.onSelectedDateChange(it) }
                 )
+
+                1 -> SpecificDaysContent(
+                    selectedDays = selectedDays,
+                    onSelectedDaysChange = { viewModel.onSelectedDaysChange(it) },
+                    excludeHolidays = excludeHolidays,
+                    onExcludeHolidaysChange = { viewModel.onExcludeHolidayToggle(it) }
+                )
             }
 
             AlarmSettingSection(
@@ -231,6 +244,89 @@ fun OneTimeContent(
                 DatePicker(state = datePickerState)
             }
         }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun SpecificDaysContent(
+    selectedDays: List<Int>,
+    onSelectedDaysChange: (List<Int>) -> Unit,
+    excludeHolidays: Boolean,
+    onExcludeHolidaysChange: (Boolean) -> Unit
+) {
+    val dayLabels = listOf(
+        stringResource(R.string.sun),
+        stringResource(R.string.mon),
+        stringResource(R.string.tue),
+        stringResource(R.string.wed),
+        stringResource(R.string.thu),
+        stringResource(R.string.fri),
+        stringResource(R.string.sat)
+    )
+
+    Text(
+        stringResource(R.string.repeat),
+        style = MaterialTheme.typography.titleLarge,
+        color = MaterialTheme.colorScheme.onBackground
+    )
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        dayLabels.forEachIndexed { index, label ->
+            // SUN(0) → 7, MON(1) → 1, ..., SAT(6) → 6
+            val dayNum = if (index == 0) 7 else index
+            val isSelected = selectedDays.contains(dayNum)
+
+            Box(modifier = Modifier.weight(1f)) {
+                FilterChip(
+                    selected = isSelected,
+                    onClick = {
+                        val newList = selectedDays.toMutableList().apply {
+                            if (isSelected) remove(dayNum) else add(dayNum)
+                        }
+                        onSelectedDaysChange(newList)
+                    },
+                    label = {
+                        Text(
+                            text = label,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center,
+                            maxLines = 1
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+    }
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            stringResource(R.string.exclude_holidays),
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        Switch(
+            checked = excludeHolidays,
+            onCheckedChange = onExcludeHolidaysChange
+        )
+    }
+
+    if (excludeHolidays) {
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = stringResource(R.string.holiday_exclusion_note),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+        )
     }
 }
 
