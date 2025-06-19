@@ -138,4 +138,72 @@ class AddRoutineViewModelTest {
         assertEquals(null, saved.repeatIntervalDays)
         assertEquals(null, saved.startDate)
     }
+
+    /**
+     * 요일 반복 탭에서 선택된 요일이 없을 경우,
+     * 에러 콜백이 호출되어야 함을 검증한다.
+     *
+     * Given: 제목이 "Test Routine"이고, 탭 인덱스는 1(요일 반복), 선택된 요일은 빈 리스트이며, 제외 공휴일 옵션은 false
+     * When: saveRoutine() 호출 시
+     * Then: onError 콜백이 R.string.toast_day_required 값을 인자로 호출되어야 한다.
+     */
+    @Test
+    fun shouldCallErrorCallback_whenSelectedDaysEmptyInWeekTab() {
+        var errorCalledWith: Int? = null
+        viewModel.onTitleChange("Test Routine")
+        viewModel.onTabIndexChange(1)
+        viewModel.onSelectedDaysChange(emptyList())
+        viewModel.onExcludeHolidayToggle(false)
+
+        viewModel.saveRoutine(
+            onSuccess = { fail("onSuccess should not be called") },
+            onError = { errorCalledWith = it }
+        )
+
+        assertEquals(R.string.toast_day_required, errorCalledWith)
+    }
+
+    /**
+     * 요일 반복 탭에서 선택된 요일이 있을 경우,
+     * 정상적으로 루틴이 저장되고 성공 콜백이 호출되는지 검증한다.
+     *
+     * Given: 제목이 "Weekly Routine", 탭 인덱스는 1, 선택된 요일은 월,수,금(1,3,5), 제외 공휴일 옵션은 false, 알람 설정이 활성화된 상태
+     * When: saveRoutine() 호출 시
+     * Then: repository.insertRoutine()가 호출되고, onSuccess 콜백이 호출되며, onError는 호출되지 않는다.
+     *       저장된 RoutineItem은 입력한 값들과 일치해야 한다.
+     */
+    @Test
+    fun shouldSaveRoutineAndCallOnSuccess_whenSelectedDaysValidInWeekTab() = runTest {
+        val onSuccess = mockk<() -> Unit>(relaxed = true)
+        val onError = mockk<(Int) -> Unit>(relaxed = true)
+
+        val days = listOf(1, 3, 5) // 월, 수, 금
+        viewModel.onTitleChange("Weekly Routine")
+        viewModel.onTabIndexChange(1)
+        viewModel.onSelectedDaysChange(days)
+        viewModel.onExcludeHolidayToggle(false)
+        viewModel.onAlarmToggle(true)
+        viewModel.onAlarmTimeChange(LocalTime.of(8, 0))
+
+        viewModel.saveRoutine(onSuccess = onSuccess, onError = onError)
+        testScheduler.advanceUntilIdle()
+
+        coVerify(exactly = 1) { repository.insertRoutine(any<RoutineItem>()) }
+        verify(exactly = 1) { onSuccess() }
+        verify(exactly = 0) { onError(any()) }
+
+        // 저장되는 RoutineItem 검증
+        val slot = slot<RoutineItem>()
+        coVerify { repository.insertRoutine(capture(slot)) }
+        val saved = slot.captured
+
+        assertEquals("Weekly Routine", saved.title)
+        assertEquals(RepeatType.WEEKLY, saved.repeatType)
+        assertEquals(null, saved.specificDate)
+        assertEquals(days, saved.repeatDays)
+        assertEquals(null, saved.holidayType)
+        assertEquals(null, saved.repeatIntervalDays)
+        assertEquals(null, saved.startDate)
+        assertEquals(true, saved.alarmTime != null)
+    }
 }
