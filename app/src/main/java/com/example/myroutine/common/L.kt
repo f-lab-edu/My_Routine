@@ -1,6 +1,6 @@
 package com.example.myroutine.common
 
-object LogWrapper {
+object L {
     var DEBUG = true // 테스트 환경에서는 false로 설정 가능
 
     fun d(tag: String, message: String) {

@@ -1,6 +1,6 @@
 package com.example.myroutine
 
-import com.example.myroutine.common.LogWrapper
+import com.example.myroutine.common.L
 import com.example.myroutine.data.local.entity.RepeatType
 import com.example.myroutine.data.local.entity.RoutineItem
 import com.example.myroutine.data.repository.RoutineRepository
@@ -33,7 +33,7 @@ class AddRoutineViewModelTest {
 
     @Before
     fun setup() {
-        LogWrapper.DEBUG = false
+        L.DEBUG = false
         Dispatchers.setMain(testDispatcher)
         viewModel = AddRoutineViewModel(repository)
     }
