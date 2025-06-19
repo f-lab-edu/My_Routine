@@ -125,7 +125,7 @@ class AddRoutineViewModel @Inject constructor(
             1 -> {
                 repeatDays = _selectedDays.value
                 if (repeatDays.isEmpty()) {
-                    Log.w(TAG, "Validation failed: repeat days not selected")
+                    L.w(TAG, "Validation failed: repeat days not selected")
                     onError(R.string.toast_day_required)
                     return
                 }
