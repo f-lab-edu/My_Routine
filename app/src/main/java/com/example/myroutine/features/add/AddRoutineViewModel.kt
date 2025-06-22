@@ -1,5 +1,6 @@
 package com.example.myroutine.features.add
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myroutine.R
@@ -33,11 +34,17 @@ class AddRoutineViewModel @Inject constructor(
     private val _selectedDate = MutableStateFlow<LocalDate?>(null)
     val selectedDate: StateFlow<LocalDate?> = _selectedDate
 
+    private val _selectedDays = MutableStateFlow<List<Int>>(emptyList())
+    val selectedDays: StateFlow<List<Int>> = _selectedDays
+
     private val _alarmEnabled = MutableStateFlow(false)
     val alarmEnabled: StateFlow<Boolean> = _alarmEnabled
 
     private val _alarmTime = MutableStateFlow(LocalTime.now())
     val alarmTime: StateFlow<LocalTime> = _alarmTime
+
+    private val _excludeHolidays = MutableStateFlow(false)
+    val excludeHolidays: StateFlow<Boolean> = _excludeHolidays
 
     // 상태 변경 함수
     fun onTitleChange(newTitle: String) {
@@ -55,6 +62,15 @@ class AddRoutineViewModel @Inject constructor(
         _selectedDate.value = date
     }
 
+    fun onSelectedDaysChange(days: List<Int>) {
+        L.d(TAG, "onSelectedDaysChange: $days")
+        _selectedDays.value = days
+    }
+
+    fun onExcludeHolidayToggle(value: Boolean) {
+        L.d(TAG, "onExcludeHolidayToggle: $value")
+        _excludeHolidays.value = value
+    }
 
     fun onAlarmToggle(enabled: Boolean) {
         L.d(TAG, "onAlarmToggle: $enabled")
@@ -102,6 +118,20 @@ class AddRoutineViewModel @Inject constructor(
                 repeatType = RepeatType.ONCE
                 repeatDays = null
                 holidayType = null
+                repeatIntervalDays = null
+                startDate = null
+            }
+
+            1 -> {
+                repeatDays = _selectedDays.value
+                if (repeatDays.isEmpty()) {
+                    L.w(TAG, "Validation failed: repeat days not selected")
+                    onError(R.string.toast_day_required)
+                    return
+                }
+                specificDate = null
+                repeatType = if (_excludeHolidays.value) RepeatType.WEEKDAY_HOLIDAY else RepeatType.WEEKLY
+                holidayType = if (_excludeHolidays.value) HolidayType.WEEKDAY else null
                 repeatIntervalDays = null
                 startDate = null
             }
