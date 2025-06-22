@@ -37,6 +37,9 @@ class AddRoutineViewModel @Inject constructor(
     private val _selectedDays = MutableStateFlow<List<Int>>(emptyList())
     val selectedDays: StateFlow<List<Int>> = _selectedDays
 
+    private val _repeatIntervalText = MutableStateFlow("")
+    val repeatIntervalText: StateFlow<String> = _repeatIntervalText
+
     private val _alarmEnabled = MutableStateFlow(false)
     val alarmEnabled: StateFlow<Boolean> = _alarmEnabled
 
@@ -70,6 +73,11 @@ class AddRoutineViewModel @Inject constructor(
     fun onExcludeHolidayToggle(value: Boolean) {
         L.d(TAG, "onExcludeHolidayToggle: $value")
         _excludeHolidays.value = value
+    }
+
+    fun onRepeatIntervalChange(text: String) {
+        Log.d(TAG, "onRepeatIntervalChange: $text")
+        _repeatIntervalText.value = text
     }
 
     fun onAlarmToggle(enabled: Boolean) {
@@ -134,6 +142,26 @@ class AddRoutineViewModel @Inject constructor(
                 holidayType = if (_excludeHolidays.value) HolidayType.WEEKDAY else null
                 repeatIntervalDays = null
                 startDate = null
+            }
+
+            2 -> {
+                if (_repeatIntervalText.value.isBlank()) {
+                    onError(R.string.toast_repeat_required)
+                    return
+                }
+
+                val interval = _repeatIntervalText.value.toIntOrNull()
+                if (interval == null || interval <= 0) {
+                    onError(R.string.toast_repeat_required)
+                    return
+                }
+
+                specificDate = null
+                repeatDays = null
+                holidayType = null
+                repeatType = RepeatType.EVERY_X_DAYS
+                startDate = LocalDate.now()
+                repeatIntervalDays = interval
             }
 
             else -> {

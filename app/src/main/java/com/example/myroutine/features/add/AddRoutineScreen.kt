@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
@@ -44,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -67,6 +69,7 @@ fun AddRoutineScreen(
 
     val selectedDate by viewModel.selectedDate.collectAsState()
     val selectedDays by viewModel.selectedDays.collectAsState()
+    val repeatIntervalText by viewModel.repeatIntervalText.collectAsState()
     val excludeHolidays by viewModel.excludeHolidays.collectAsState()
 
     val snackBarHostState = remember { SnackbarHostState() }
@@ -159,6 +162,11 @@ fun AddRoutineScreen(
                     onSelectedDaysChange = { viewModel.onSelectedDaysChange(it) },
                     excludeHolidays = excludeHolidays,
                     onExcludeHolidaysChange = { viewModel.onExcludeHolidayToggle(it) }
+                )
+
+                2 -> RepeatXDaysContent(
+                    text = repeatIntervalText,
+                    onTextChange = { viewModel.onRepeatIntervalChange(it) }
                 )
             }
 
@@ -330,6 +338,19 @@ fun SpecificDaysContent(
     }
 }
 
+@Composable
+fun RepeatXDaysContent(
+    text: String,
+    onTextChange: (String) -> Unit
+) {
+    OutlinedTextField(
+        value = text,
+        onValueChange = { onTextChange(it.filter { c -> c.isDigit() }) },
+        label = { Text(stringResource(R.string.repeat_every_x_days)) },
+        modifier = Modifier.fillMaxWidth(),
+        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
+    )
+}
 
 @Composable
 fun AlarmSettingSection(
