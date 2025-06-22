@@ -76,7 +76,7 @@ class AddRoutineViewModel @Inject constructor(
     }
 
     fun onRepeatIntervalChange(text: String) {
-        Log.d(TAG, "onRepeatIntervalChange: $text")
+        L.d(TAG, "onRepeatIntervalChange: $text")
         _repeatIntervalText.value = text
     }
 
