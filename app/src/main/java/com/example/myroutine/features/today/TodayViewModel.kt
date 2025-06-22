@@ -23,7 +23,6 @@ class TodayViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            repository.insertMockDataIfEmpty()
 
             val today = LocalDate.now()
             val todayRoutines = repository.getTodayRoutines(today)
