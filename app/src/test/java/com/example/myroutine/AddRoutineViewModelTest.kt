@@ -279,7 +279,7 @@ class AddRoutineViewModelTest {
         assertEquals("Interval Routine", saved.title)
         assertEquals(RepeatType.EVERY_X_DAYS, saved.repeatType)
         assertEquals(5, saved.repeatIntervalDays)
-        assertEquals(true, saved.alarmTime != null)
+        assertEquals(LocalTime.of(9, 0), saved.alarmTime)
     }
 
     /**
