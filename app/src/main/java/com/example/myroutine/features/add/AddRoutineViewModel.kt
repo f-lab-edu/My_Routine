@@ -22,7 +22,11 @@ class AddRoutineViewModel @Inject constructor(
     private val repository: RoutineRepository
 ) : ViewModel() {
 
-    private val TAG = "AddRoutineViewModel"
+    companion object {
+        const val TAB_INDEX_SPECIFIC_DATE = 0
+        const val TAB_INDEX_WEEKLY = 1
+        const val TAB_INDEX_EVERY_X_DAYS = 2
+    }
 
     // StateFlows (입력 상태)
     private val _title = MutableStateFlow("")
@@ -37,6 +41,9 @@ class AddRoutineViewModel @Inject constructor(
     private val _selectedDays = MutableStateFlow<List<Int>>(emptyList())
     val selectedDays: StateFlow<List<Int>> = _selectedDays
 
+    private val _repeatIntervalText = MutableStateFlow("")
+    val repeatIntervalText: StateFlow<String> = _repeatIntervalText
+
     private val _alarmEnabled = MutableStateFlow(false)
     val alarmEnabled: StateFlow<Boolean> = _alarmEnabled
 
@@ -48,37 +55,42 @@ class AddRoutineViewModel @Inject constructor(
 
     // 상태 변경 함수
     fun onTitleChange(newTitle: String) {
-        L.d(TAG, "onTitleChange: $newTitle")
+        L.d(this::class.simpleName.toString(), "onTitleChange: $newTitle")
         _title.value = newTitle
     }
 
     fun onTabIndexChange(index: Int) {
-        L.d(TAG, "onTabIndexChange: $index")
+        L.d(this::class.simpleName.toString(), "onTabIndexChange: $index")
         _tabIndex.value = index
     }
 
     fun onSelectedDateChange(date: LocalDate?) {
-        L.d(TAG, "onSelectedDateChange: $date")
+        L.d(this::class.simpleName.toString(), "onSelectedDateChange: $date")
         _selectedDate.value = date
     }
 
     fun onSelectedDaysChange(days: List<Int>) {
-        L.d(TAG, "onSelectedDaysChange: $days")
+        L.d(this::class.simpleName.toString(), "onSelectedDaysChange: $days")
         _selectedDays.value = days
     }
 
     fun onExcludeHolidayToggle(value: Boolean) {
-        L.d(TAG, "onExcludeHolidayToggle: $value")
+        L.d(this::class.simpleName.toString(), "onExcludeHolidayToggle: $value")
         _excludeHolidays.value = value
     }
 
+    fun onRepeatIntervalChange(text: String) {
+        L.d(this::class.simpleName.toString(), "onRepeatIntervalChange: $text")
+        _repeatIntervalText.value = text
+    }
+
     fun onAlarmToggle(enabled: Boolean) {
-        L.d(TAG, "onAlarmToggle: $enabled")
+        L.d(this::class.simpleName.toString(), "onAlarmToggle: $enabled")
         _alarmEnabled.value = enabled
     }
 
     fun onAlarmTimeChange(time: LocalTime) {
-        L.d(TAG, "onAlarmTimeChange: $time")
+        L.d(this::class.simpleName.toString(), "onAlarmTimeChange: $time")
         _alarmTime.value = time
     }
 
@@ -90,12 +102,12 @@ class AddRoutineViewModel @Inject constructor(
         val title = _title.value.trim()
         val tabIndex = _tabIndex.value
 
-        L.d(TAG, "saveRoutine() called")
-        L.d(TAG, "Current title: '$title'")
-        L.d(TAG, "Tab index: $tabIndex")
+        L.d(this::class.simpleName.toString(), "saveRoutine() called")
+        L.d(this::class.simpleName.toString(), "Current title: '$title'")
+        L.d(this::class.simpleName.toString(), "Tab index: $tabIndex")
 
         if (title.isEmpty()) {
-            L.w(TAG, "Validation failed: title is empty")
+            L.w(this::class.simpleName.toString(), "Validation failed: title is empty")
             onError(R.string.toast_title_required)
             return
         }
@@ -108,10 +120,10 @@ class AddRoutineViewModel @Inject constructor(
         val startDate: LocalDate?
 
         when (tabIndex) {
-            0 -> {
+            TAB_INDEX_SPECIFIC_DATE -> {
                 specificDate = _selectedDate.value
                 if (specificDate == null) {
-                    L.w(TAG, "Validation failed: specific date not selected")
+                    L.w(this::class.simpleName.toString(), "Validation failed: specific date not selected")
                     onError(R.string.toast_date_required)
                     return
                 }
@@ -122,10 +134,10 @@ class AddRoutineViewModel @Inject constructor(
                 startDate = null
             }
 
-            1 -> {
+            TAB_INDEX_WEEKLY -> {
                 repeatDays = _selectedDays.value
                 if (repeatDays.isEmpty()) {
-                    L.w(TAG, "Validation failed: repeat days not selected")
+                    L.w(this::class.simpleName.toString(), "Validation failed: repeat days not selected")
                     onError(R.string.toast_day_required)
                     return
                 }
@@ -136,8 +148,28 @@ class AddRoutineViewModel @Inject constructor(
                 startDate = null
             }
 
+            TAB_INDEX_EVERY_X_DAYS -> {
+                if (_repeatIntervalText.value.isBlank()) {
+                    onError(R.string.toast_repeat_required)
+                    return
+                }
+
+                val interval = _repeatIntervalText.value.toIntOrNull()
+                if (interval == null || interval <= 0) {
+                    onError(R.string.toast_repeat_required)
+                    return
+                }
+
+                specificDate = null
+                repeatDays = null
+                holidayType = null
+                repeatType = RepeatType.EVERY_X_DAYS
+                startDate = LocalDate.now()
+                repeatIntervalDays = interval
+            }
+
             else -> {
-                L.w(TAG, "Validation failed: invalid tab index $tabIndex")
+                L.w(this::class.simpleName.toString(), "Validation failed: invalid tab index $tabIndex")
                 specificDate = null
                 repeatDays = null
                 holidayType = null
@@ -158,11 +190,11 @@ class AddRoutineViewModel @Inject constructor(
             startDate = startDate
         )
 
-        L.d(TAG, "Saving routine: $routine")
+        L.d(this::class.simpleName.toString(), "Saving routine: $routine")
 
         viewModelScope.launch {
             repository.insertRoutine(routine)
-            L.d(TAG, "Routine saved successfully")
+            L.d(this::class.simpleName.toString(), "Routine saved successfully")
             onSuccess()
         }
     }

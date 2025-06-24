@@ -206,4 +206,105 @@ class AddRoutineViewModelTest {
         assertEquals(null, saved.startDate)
         assertEquals(true, saved.alarmTime != null)
     }
+
+    /**
+     * Given: 제목이 "Interval Routine", 탭 인덱스가 2(특정 일수 반복), 반복 간격 텍스트가 빈 문자열
+     * When: saveRoutine() 호출 시
+     * Then: onError 콜백이 R.string.toast_repeat_required 호출되어야 한다.
+     */
+    @Test
+    fun shouldCallErrorCallback_whenRepeatIntervalIsBlank() {
+        var errorCalledWith: Int? = null
+        viewModel.onTitleChange("Interval Routine")
+        viewModel.onTabIndexChange(2)
+        viewModel.onRepeatIntervalChange("")
+
+        viewModel.saveRoutine(
+            onSuccess = { fail("onSuccess should not be called") },
+            onError = { errorCalledWith = it }
+        )
+
+        assertEquals(R.string.toast_repeat_required, errorCalledWith)
+    }
+
+    /**
+     * Given: 제목이 "Interval Routine", 탭 인덱스가 2, 반복 간격 텍스트가 숫자가 아닌 문자열("abc")
+     * When: saveRoutine() 호출 시
+     * Then: onError 콜백이 R.string.toast_repeat_required 호출되어야 한다.
+     */
+    @Test
+    fun shouldCallErrorCallback_whenRepeatIntervalIsInvalid() {
+        var errorCalledWith: Int? = null
+        viewModel.onTitleChange("Interval Routine")
+        viewModel.onTabIndexChange(2)
+        viewModel.onRepeatIntervalChange("abc")
+
+        viewModel.saveRoutine(
+            onSuccess = { fail("onSuccess should not be called") },
+            onError = { errorCalledWith = it }
+        )
+
+        assertEquals(R.string.toast_repeat_required, errorCalledWith)
+    }
+
+    /**
+     * Given: 제목이 "Interval Routine", 탭 인덱스가 2, 반복 간격 텍스트가 "5" (유효한 숫자),
+     *        알람이 활성화되고 알람 시간이 9:00으로 설정됨
+     * When: saveRoutine() 호출 시
+     * Then: repository.insertRoutine()가 호출되고 onSuccess 콜백이 호출되며,
+     *       저장된 RoutineItem의 필드 값이 올바르게 설정되어야 한다.
+     */
+    @Test
+    fun shouldSaveRoutineAndCallOnSuccess_whenRepeatIntervalIsValid() = runTest {
+        val onSuccess = mockk<() -> Unit>(relaxed = true)
+        val onError = mockk<(Int) -> Unit>(relaxed = true)
+
+        viewModel.onTitleChange("Interval Routine")
+        viewModel.onTabIndexChange(2)
+        viewModel.onRepeatIntervalChange("5")
+        viewModel.onAlarmToggle(true)
+        viewModel.onAlarmTimeChange(LocalTime.of(9, 0))
+
+        viewModel.saveRoutine(onSuccess = onSuccess, onError = onError)
+        testScheduler.advanceUntilIdle()
+
+        coVerify(exactly = 1) { repository.insertRoutine(any<RoutineItem>()) }
+        verify(exactly = 1) { onSuccess() }
+        verify(exactly = 0) { onError(any()) }
+
+        val slot = slot<RoutineItem>()
+        coVerify { repository.insertRoutine(capture(slot)) }
+        val saved = slot.captured
+
+        assertEquals("Interval Routine", saved.title)
+        assertEquals(RepeatType.EVERY_X_DAYS, saved.repeatType)
+        assertEquals(5, saved.repeatIntervalDays)
+        assertEquals(LocalTime.of(9, 0), saved.alarmTime)
+    }
+
+    /**
+     * Given: 제목이 "Interval Routine No Alarm", 탭 인덱스가 2, 반복 간격 텍스트가 "7",
+     *        알람이 비활성화 상태일 때
+     * When: saveRoutine() 호출 시
+     * Then: 저장된 RoutineItem의 alarmTime 필드가 null 이어야 한다.
+     */
+    @Test
+    fun shouldSaveRoutineWithNullAlarmTime_whenAlarmDisabled_inIntervalTab() = runTest {
+        val onSuccess = mockk<() -> Unit>(relaxed = true)
+        val onError = mockk<(Int) -> Unit>(relaxed = true)
+
+        viewModel.onTitleChange("Interval Routine No Alarm")
+        viewModel.onTabIndexChange(2)
+        viewModel.onRepeatIntervalChange("7")
+        viewModel.onAlarmToggle(false)
+
+        viewModel.saveRoutine(onSuccess = onSuccess, onError = onError)
+        testScheduler.advanceUntilIdle()
+
+        val slot = slot<RoutineItem>()
+        coVerify { repository.insertRoutine(capture(slot)) }
+        val saved = slot.captured
+
+        assertEquals(null, saved.alarmTime)
+    }
 }
