@@ -206,7 +206,6 @@ fun AddRoutineScreen(
 }
 
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OneTimeContent(
@@ -345,7 +344,12 @@ fun RepeatXDaysContent(
 ) {
     OutlinedTextField(
         value = text,
-        onValueChange = { onTextChange(it.filter { c -> c.isDigit() }) },
+        onValueChange = {
+            onTextChange(
+                it.filter { c ->
+                    c.isDigit()
+                })
+        },
         label = { Text(stringResource(R.string.repeat_every_x_days)) },
         modifier = Modifier.fillMaxWidth(),
         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
