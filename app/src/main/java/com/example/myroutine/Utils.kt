@@ -1,10 +1,25 @@
 package com.example.myroutine
 
+import android.Manifest
 import android.content.Context
 import android.os.Build
 import android.app.AlarmManager
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
 
 object PermissionUtils {
+
+    fun hasPostNotificationPermission(context: Context): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+        } else {
+            true
+        }
+    }
+
     fun canScheduleExactAlarms(context: Context): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val alarmManager = context.getSystemService(AlarmManager::class.java)

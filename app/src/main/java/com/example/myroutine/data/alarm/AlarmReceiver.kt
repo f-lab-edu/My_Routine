@@ -9,6 +9,7 @@ import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import com.example.myroutine.PermissionUtils
 import com.example.myroutine.R
 import com.example.myroutine.data.local.entity.RoutineItem
 import com.example.myroutine.data.repository.RoutineRepository
@@ -32,15 +33,10 @@ class AlarmReceiver : BroadcastReceiver() {
         val routineId = intent.getIntExtra("ROUTINE_ID", -1)
         if (routineId == -1) return
 
-        // Android 13 이상 권한 체크
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            val hasPermission = ContextCompat.checkSelfPermission(
-                context, Manifest.permission.POST_NOTIFICATIONS
-            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
-            if (!hasPermission) {
-                // 권한 없으면 알림 표시 안함
-                return
-            }
+        // 권한 체크를 Utils로 대체
+        if (!PermissionUtils.hasPostNotificationPermission(context)) {
+            // 권한 없으면 알림 표시 안함
+            return
         }
 
         // 코루틴으로 비동기 처리 (DB 접근)
