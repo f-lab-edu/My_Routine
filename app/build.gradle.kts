@@ -61,7 +61,7 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     // To use the androidx.test.core APIs
     testImplementation(libs.androidx.core.test.ktx)
-    testImplementation("androidx.work:work-testing:2.10.2")
+    testImplementation(libs.androidx.work.testing)
 
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
