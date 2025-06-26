@@ -4,18 +4,63 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.window.DialogProperties
 import com.example.myroutine.common.MainScreen
 import com.example.myroutine.ui.theme.MyRoutineTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
             MyRoutineTheme {
-                MainScreen() // 여기서 호출 (컴포저블 함수 안)
+                val context = this
+                var showPermissionDialog by remember { mutableStateOf(false) }
+
+                LaunchedEffect(Unit) {
+                    showPermissionDialog = !PermissionUtils.canScheduleExactAlarms(context)
+                }
+
+                if (showPermissionDialog) {
+                    AlertDialog(
+                        onDismissRequest = { /* 빈 처리로 닫히지 않도록 설정 */ },
+                        confirmButton = {
+                            Button(onClick = {
+                                PermissionUtils.getScheduleExactAlarmIntent()?.let { intent ->
+                                    startActivity(intent)
+                                }
+                                showPermissionDialog = false
+                            }) {
+                                Text(text = context.getString(R.string.settings_open))
+                            }
+                        },
+                        dismissButton = {
+                            Button(onClick = { showPermissionDialog = false }) {
+                                Text(text = context.getString(R.string.cancel))
+                            }
+                        },
+                        title = { Text(text = context.getString(R.string.permission_dialog_title)) },
+                        text = { Text(text = context.getString(R.string.permission_dialog_text)) },
+                        properties = DialogProperties(
+                            dismissOnBackPress = false,
+                            dismissOnClickOutside = false
+                        )
+                    )
+                }
+
+                MainScreen()
             }
         }
     }

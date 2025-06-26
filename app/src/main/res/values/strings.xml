@@ -39,4 +39,8 @@
     <string name="toast_day_required">Please select at least one day.</string>
     <string name="toast_repeat_required">Please enter repeat interval.</string>
     <string name="toast_title_required">Please enter a routine title.</string>
+    <string name="settings_open">Open Settings</string>
+    <string name="permission_dialog_title">Exact Alarm Permission Required</string>
+    <string name="permission_dialog_text">Exact alarm scheduling requires permission. Would you like to open the settings?</string>
+    <string name="notification_content_text">It\'s time to perform your routine!</string>
 </resources>
