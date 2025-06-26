@@ -7,6 +7,7 @@ import android.content.Intent
 import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.example.myroutine.AlarmConstants
 import com.example.myroutine.PermissionUtils
 import com.example.myroutine.R
 import com.example.myroutine.data.repository.RoutineRepository
@@ -42,10 +43,10 @@ class AlarmReceiver : BroadcastReceiver() {
 
             if (routine == null) return@launch
 
-            val notification = NotificationCompat.Builder(context, "routine_channel_id")
+            val notification = NotificationCompat.Builder(context, AlarmConstants.ROUTINE_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_alarm)
                 .setContentTitle(routine.title)
-                .setContentText("루틴 수행할 시간입니다!")
+                .setContentText(context.getString(R.string.notification_content_text))
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true)
                 .build()
