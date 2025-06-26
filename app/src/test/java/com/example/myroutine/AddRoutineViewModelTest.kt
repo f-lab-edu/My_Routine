@@ -1,10 +1,12 @@
 package com.example.myroutine
 
 import com.example.myroutine.common.L
+import com.example.myroutine.data.alarm.AlarmScheduler
 import com.example.myroutine.data.local.entity.RepeatType
 import com.example.myroutine.data.local.entity.RoutineItem
 import com.example.myroutine.data.repository.RoutineRepository
 import com.example.myroutine.features.add.AddRoutineViewModel
+import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.slot
@@ -28,6 +30,7 @@ class AddRoutineViewModelTest {
 
     private lateinit var viewModel: AddRoutineViewModel
     private val repository: RoutineRepository = mockk(relaxed = true)
+    private val alarmScheduler: AlarmScheduler = mockk(relaxed = true)
 
     private val testDispatcher = StandardTestDispatcher()
 
@@ -35,7 +38,7 @@ class AddRoutineViewModelTest {
     fun setup() {
         L.DEBUG = false
         Dispatchers.setMain(testDispatcher)
-        viewModel = AddRoutineViewModel(repository)
+        viewModel = AddRoutineViewModel(repository, alarmScheduler)
     }
 
     @After
@@ -306,5 +309,63 @@ class AddRoutineViewModelTest {
         val saved = slot.captured
 
         assertEquals(null, saved.alarmTime)
+    }
+
+    /**
+     * Given: 제목이 "Test Alarm", 탭 인덱스가 0, 날짜가 오늘, 알람이 활성화 상태이며 알람 시간이 10:00으로 설정됨
+     * When: saveRoutine() 호출 시
+     * Then: repository.insertRoutine()와 alarmScheduler.schedule()이 각각 한 번 호출되고, onSuccess 콜백이 호출되어야 한다.
+     */
+    @Test
+    fun shouldCallAlarmScheduler_whenAlarmEnabled() = runTest {
+        val repository = mockk<RoutineRepository>(relaxed = true)
+        val alarmScheduler = mockk<AlarmScheduler>(relaxed = true)
+        val viewModel = AddRoutineViewModel(repository, alarmScheduler)
+
+        viewModel.onTitleChange("Test Alarm")
+        viewModel.onTabIndexChange(0)
+        viewModel.onSelectedDateChange(LocalDate.now())
+        viewModel.onAlarmToggle(true)
+        viewModel.onAlarmTimeChange(LocalTime.of(10, 0))
+
+        val onSuccess = mockk<() -> Unit>(relaxed = true)
+        val onError = mockk<(Int) -> Unit>(relaxed = true)
+
+        viewModel.saveRoutine(onSuccess, onError)
+        testScheduler.advanceUntilIdle()
+
+        coVerify(exactly = 1) { repository.insertRoutine(any()) }
+        coVerify(exactly = 1) { alarmScheduler.schedule(any()) }
+        verify(exactly = 1) { onSuccess() }
+    }
+
+    /**
+     * Given: 제목이 "Test Exception", 탭 인덱스가 0, 날짜가 오늘, 알람이 활성화 상태이며 알람 시간이 10:00으로 설정됨
+     *        alarmScheduler.schedule() 호출 시 예외가 발생함
+     * When: saveRoutine() 호출 시
+     * Then: alarmScheduler.schedule()에서 예외가 발생해도 onSuccess 콜백이 정상 호출되어야 하며, onError 콜백은 호출되지 않아야 한다.
+     */
+    @Test
+    fun shouldCallOnSuccessEvenIfAlarmSchedulerFails() = runTest {
+        val repository = mockk<RoutineRepository>(relaxed = true)
+        val alarmScheduler = mockk<AlarmScheduler> {
+            coEvery { schedule(any()) } throws RuntimeException("Alarm error")
+        }
+        val viewModel = AddRoutineViewModel(repository, alarmScheduler)
+
+        viewModel.onTitleChange("Test Exception")
+        viewModel.onTabIndexChange(0)
+        viewModel.onSelectedDateChange(LocalDate.now())
+        viewModel.onAlarmToggle(true)
+        viewModel.onAlarmTimeChange(LocalTime.of(10, 0))
+
+        val onSuccess = mockk<() -> Unit>(relaxed = true)
+        val onError = mockk<(Int) -> Unit>(relaxed = true)
+
+        viewModel.saveRoutine(onSuccess, onError)
+        testScheduler.advanceUntilIdle()
+
+        verify { onSuccess() }
+        verify(exactly = 0) { onError(any()) }
     }
 }
