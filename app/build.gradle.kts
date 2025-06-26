@@ -53,6 +53,8 @@ dependencies {
 
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
+    implementation(libs.androidx.hilt.common)
+    implementation(libs.androidx.work.runtime.ktx)
     ksp(libs.hilt.compiler)
 
     testImplementation(libs.mockk)
