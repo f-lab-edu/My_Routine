@@ -15,6 +15,7 @@ googleGmsGoogleServices = "4.4.2"
 firebaseFirestore = "25.1.4"
 material = "1.8.2"
 mockk = "1.14.2"
+mockkAndroid = "1.14.4"
 navigationCompose = "2.9.0"
 hilt = "2.51.1"
 room = "2.7.1"
@@ -33,6 +34,7 @@ hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
 
 # Room
+mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockkAndroid" }
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }

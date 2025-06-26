@@ -1,3 +1,5 @@
+import com.android.build.api.dsl.Packaging
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -45,6 +47,18 @@ android {
     buildFeatures {
         compose = true
     }
+
+    packaging {
+        resources {
+            excludes += setOf(
+                "META-INF/LICENSE.md",
+                "META-INF/LICENSE-notice.md",
+                "META-INF/DEPENDENCIES",
+                "META-INF/NOTICE",
+                "META-INF/NOTICE.txt"
+            )
+        }
+    }
 }
 
 dependencies {
@@ -57,9 +71,11 @@ dependencies {
     implementation(libs.androidx.work.runtime.ktx)
     ksp(libs.hilt.compiler)
 
+    androidTestImplementation(libs.mockk.android)
+    androidTestImplementation(libs.androidx.core.test.ktx)
+    androidTestImplementation(libs.androidx.work.testing)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
-    // To use the androidx.test.core APIs
     testImplementation(libs.androidx.core.test.ktx)
     testImplementation(libs.androidx.work.testing)
 
