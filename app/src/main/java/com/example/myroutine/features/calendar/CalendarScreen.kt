@@ -34,6 +34,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -43,6 +50,8 @@ fun CalendarScreen() {
         Int.MAX_VALUE
     }
     val coroutineScope = rememberCoroutineScope()
+
+    var selectedDate by remember { mutableStateOf<LocalDate?>(LocalDate.now()) }
 
     val displayMonth = remember {
         derivedStateOf {
@@ -78,16 +87,24 @@ fun CalendarScreen() {
         HorizontalPager(state = pagerState) { page ->
             val monthOffset = page - (Int.MAX_VALUE / 2)
             val monthToDisplay = currentMonth.plusMonths(monthOffset.toLong())
-            CalendarGrid(displayMonth = monthToDisplay)
+            CalendarGrid(
+                displayMonth = monthToDisplay,
+                selectedDate = selectedDate,
+                onDayClick = { date -> selectedDate = date }
+            )
         }
 
         // Routine List for selected date (Placeholder)
-        Text(text = "Routine List for Selected Date (Placeholder)")
+        Text(text = "Routine List for Selected Date: ${selectedDate?.toString() ?: "None"}")
     }
 }
 
 @Composable
-fun CalendarGrid(displayMonth: YearMonth) {
+fun CalendarGrid(
+    displayMonth: YearMonth,
+    selectedDate: LocalDate?,
+    onDayClick: (LocalDate) -> Unit
+) {
     val firstDayOfMonth = displayMonth.atDay(1)
     val daysInMonth = displayMonth.lengthOfMonth()
     val firstDayOfWeek = firstDayOfMonth.dayOfWeek.value % 7 // 0 for Sunday, 6 for Saturday
@@ -118,12 +135,20 @@ fun CalendarGrid(displayMonth: YearMonth) {
         // Days of the month
         LazyVerticalGrid(columns = GridCells.Fixed(7), modifier = Modifier.fillMaxWidth()) {
             items(days) { day ->
+                val isSelected = day == selectedDate
                 Box(
-                    modifier = Modifier.padding(4.dp),
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .clickable(enabled = day != null) { day?.let { onDayClick(it) } }
+                        .background(
+                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+                            shape = CircleShape
+                        )
+                        .padding(4.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     if (day != null) {
-                        Text(text = day.dayOfMonth.toString())
+                        Text(text = day.dayOfMonth.toString(), color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface)
                     } else {
                         Text(text = "")
                     }
