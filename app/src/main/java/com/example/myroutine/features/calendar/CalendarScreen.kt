@@ -94,7 +94,7 @@ fun CalendarScreen(viewModel: CalendarViewModel = viewModel()) {
                     pagerState.scrollToPage(Int.MAX_VALUE / 2)
                 }
             }) {
-                Icon(Icons.Default.Today, contentDescription = "Today")
+                Text(text = stringResource(id = R.string.today))
             }
         }
 
