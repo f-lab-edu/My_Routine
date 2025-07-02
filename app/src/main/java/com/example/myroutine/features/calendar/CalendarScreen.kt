@@ -66,9 +66,8 @@ fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
     LaunchedEffect(pagerState.currentPage) {
         val monthOffset = pagerState.currentPage - initialPage
         val newMonth = YearMonth.now().plusMonths(monthOffset.toLong())
-        if (newMonth != currentMonth) {
-            viewModel.selectDay(newMonth.atDay(1)) // Select 1st day of new month
-        }
+        viewModel.setCurrentMonth(newMonth) // ViewModel의 currentMonth 업데이트
+        viewModel.selectDay(newMonth.atDay(1)) // Select 1st day of new month
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -107,7 +106,7 @@ fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
             val monthOffset = page - initialPage
             val monthToDisplay = YearMonth.now().plusMonths(monthOffset.toLong())
             CalendarGrid(
-                displayMonth = monthToDisplay,
+                displayMonth = currentMonth, // ViewModel의 currentMonth 사용
                 selectedDate = selectedDate,
                 calendarDays = calendarDays,
                 onDayClick = { date -> viewModel.selectDay(date) }
@@ -191,8 +190,6 @@ fun CalendarGrid(
                 ) {
                     if (day != null) {
                         Text(text = day.dayOfMonth.toString(), color = textColor)
-                    } else {
-                        Text(text = "")
                     }
                 }
             }
