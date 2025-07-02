@@ -49,6 +49,9 @@ import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
 
+import androidx.compose.runtime.snapshotFlow
+import kotlinx.coroutines.flow.debounce
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
@@ -64,11 +67,15 @@ fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
     }
     val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(pagerState.currentPage) {
-        val monthOffset = pagerState.currentPage - initialPage
-        val newMonth = YearMonth.now().plusMonths(monthOffset.toLong())
-        viewModel.setCurrentMonth(newMonth) // ViewModel의 currentMonth 업데이트
-        viewModel.selectDay(newMonth.atDay(1)) // Select 1st day of new month
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.currentPage }
+            .debounce(300L) // 300ms 디바운스
+            .collect { page ->
+                val monthOffset = page - initialPage
+                val newMonth = YearMonth.now().plusMonths(monthOffset.toLong())
+                viewModel.setCurrentMonth(newMonth)
+                viewModel.selectDay(newMonth.atDay(1))
+            }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
