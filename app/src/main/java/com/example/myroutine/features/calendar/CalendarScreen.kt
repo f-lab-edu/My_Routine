@@ -55,13 +55,16 @@ fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
     val selectedDate by viewModel.selectedDate.collectAsState()
     val calendarDays by viewModel.calendarDays.collectAsState()
 
-    val pagerState = rememberPagerState(initialPage = Int.MAX_VALUE / 2) {
-        Int.MAX_VALUE
+    val pageCount = 1200 // 충분히 큰 유한한 페이지 수
+    val initialPage = pageCount / 2
+
+    val pagerState = rememberPagerState(initialPage = initialPage) {
+        pageCount
     }
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(pagerState.currentPage) {
-        val monthOffset = pagerState.currentPage - (Int.MAX_VALUE / 2)
+        val monthOffset = pagerState.currentPage - initialPage
         val newMonth = YearMonth.now().plusMonths(monthOffset.toLong())
         if (newMonth != currentMonth) {
             viewModel.selectDay(newMonth.atDay(1)) // Select 1st day of new month
@@ -92,7 +95,7 @@ fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
             IconButton(onClick = {
                 viewModel.goToToday()
                 coroutineScope.launch {
-                    pagerState.scrollToPage(Int.MAX_VALUE / 2)
+                    pagerState.scrollToPage(initialPage)
                 }
             }) {
                 Text(text = stringResource(id = R.string.today))
@@ -101,7 +104,7 @@ fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
 
         // Calendar Grid (Swipeable)
         HorizontalPager(state = pagerState) { page ->
-            val monthOffset = page - (Int.MAX_VALUE / 2)
+            val monthOffset = page - initialPage
             val monthToDisplay = YearMonth.now().plusMonths(monthOffset.toLong())
             CalendarGrid(
                 displayMonth = monthToDisplay,
