@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -166,31 +167,34 @@ fun CalendarGrid(
         ) {
             items(calendarDays) { calendarDay ->
                 val day = calendarDay.date
-                val isSelected = calendarDay.isSelected
-                val isWeekend = calendarDay.isWeekend
-                val isHoliday = calendarDay.isHoliday
+                if (day != null) {
+                    val isSelected = calendarDay.isSelected
+                    val isWeekend = calendarDay.isWeekend
+                    val isHoliday = calendarDay.isHoliday
 
-                val textColor = when {
-                    isSelected -> MaterialTheme.colorScheme.onPrimary
-                    isHoliday || day?.dayOfWeek == DayOfWeek.SUNDAY -> Color.Red
-                    day?.dayOfWeek == DayOfWeek.SATURDAY -> Color.Blue
-                    else -> MaterialTheme.colorScheme.onSurface
-                }
+                    val textColor = when {
+                        isSelected -> MaterialTheme.colorScheme.onPrimary
+                        isHoliday || day.dayOfWeek == DayOfWeek.SUNDAY -> Color.Red
+                        day.dayOfWeek == DayOfWeek.SATURDAY -> Color.Blue
+                        else -> MaterialTheme.colorScheme.onSurface
+                    }
 
-                Box(
-                    modifier = Modifier
-                        .padding(4.dp)
-                        .clickable(enabled = day != null) { day?.let { onDayClick(it) } }
-                        .background(
-                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
-                            shape = CircleShape
-                        )
-                        .padding(4.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (day != null) {
+                    Box(
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .clickable(enabled = true) { onDayClick(day) }
+                            .background(
+                                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+                                shape = CircleShape
+                            )
+                            .padding(4.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
                         Text(text = day.dayOfMonth.toString(), color = textColor)
                     }
+                } else {
+                    // null인 경우 아무것도 렌더링하지 않음
+                    Spacer(modifier = Modifier.padding(4.dp))
                 }
             }
         }
