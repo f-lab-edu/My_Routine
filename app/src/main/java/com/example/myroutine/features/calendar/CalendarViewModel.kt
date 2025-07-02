@@ -16,7 +16,11 @@ data class CalendarDay(
     val isHoliday: Boolean
 )
 
-class CalendarViewModel : ViewModel() {
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+
+@HiltViewModel
+class CalendarViewModel @Inject constructor() : ViewModel() {
 
     internal val _currentMonth = MutableStateFlow(YearMonth.now())
     val currentMonth: StateFlow<YearMonth> = _currentMonth.asStateFlow()
