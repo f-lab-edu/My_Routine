@@ -18,10 +18,10 @@ data class CalendarDay(
 
 class CalendarViewModel : ViewModel() {
 
-    private val _currentMonth = MutableStateFlow(YearMonth.now())
+    internal val _currentMonth = MutableStateFlow(YearMonth.now())
     val currentMonth: StateFlow<YearMonth> = _currentMonth.asStateFlow()
 
-    private val _selectedDate = MutableStateFlow(LocalDate.now())
+    internal val _selectedDate = MutableStateFlow(LocalDate.now())
     val selectedDate: StateFlow<LocalDate> = _selectedDate.asStateFlow()
 
     // Placeholder for holidays. Will be fetched from API later.
@@ -34,7 +34,7 @@ class CalendarViewModel : ViewModel() {
         _holidays
     ) { month, selected, holidays ->
         generateCalendarDays(month, selected, holidays)
-    }
+    } as StateFlow<List<CalendarDay>>
 
     init {
         // When the month changes, automatically select the 1st day of the new month
