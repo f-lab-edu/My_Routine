@@ -41,6 +41,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.ListItem
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -94,8 +96,19 @@ fun CalendarScreen() {
             )
         }
 
-        // Routine List for selected date (Placeholder)
-        Text(text = "Routine List for Selected Date: ${selectedDate?.toString() ?: "None"}")
+        // Routine List for selected date
+        selectedDate?.let { date ->
+            val dummyRoutines = listOf(
+                "${date.dayOfMonth}일 루틴 1",
+                "${date.dayOfMonth}일 루틴 2",
+                "${date.dayOfMonth}일 루틴 3"
+            )
+            LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                items(dummyRoutines) {
+                    ListItem(headlineContent = { Text(it) })
+                }
+            }
+        } ?: Text(text = "날짜를 선택해주세요.")
     }
 }
 
