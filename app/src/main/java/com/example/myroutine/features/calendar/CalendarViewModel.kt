@@ -64,6 +64,10 @@ class CalendarViewModel @Inject constructor() : ViewModel() {
         _selectedDate.value = date
     }
 
+    fun setCurrentMonth(yearMonth: YearMonth) {
+        _currentMonth.value = yearMonth
+    }
+
     private fun generateCalendarDays(
         yearMonth: YearMonth,
         selectedDate: LocalDate,
