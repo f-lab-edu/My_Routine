@@ -140,7 +140,7 @@ class CalendarViewModelTest {
         advanceUntilIdle() // ViewModel의 Flow가 업데이트될 때까지 대기
 
         // When: calendarDays Flow의 값 가져오기
-        val days = viewModel.calendarDays.value
+        val days = viewModel.calendarDays.first()
         val firstDayOfMonth = currentMonth.atDay(1)
         val daysInMonth = currentMonth.lengthOfMonth()
         // 일요일을 0으로 시작하는 요일 값으로 변환 (SUNDAY=0, MONDAY=1, ..., SATURDAY=6)
@@ -179,7 +179,7 @@ class CalendarViewModelTest {
         advanceUntilIdle()
 
         // When: calendarDays Flow의 값 가져오기
-        val days = viewModel.calendarDays.value
+        val days = viewModel.calendarDays.first()
 
         // Then:
         // 1. 2024년 7월 6일 (토요일)이 주말로 식별되는지 확인
