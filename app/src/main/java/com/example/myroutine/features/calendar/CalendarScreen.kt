@@ -53,7 +53,7 @@ import java.util.Locale
 fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
     val currentMonth by viewModel.currentMonth.collectAsState()
     val selectedDate by viewModel.selectedDate.collectAsState()
-    val calendarDays by viewModel.calendarDays.collectAsState()
+    val calendarDays by viewModel.calendarDays.collectAsState(initial = emptyList())
 
     val pageCount = 1200 // 충분히 큰 유한한 페이지 수
     val initialPage = pageCount / 2
