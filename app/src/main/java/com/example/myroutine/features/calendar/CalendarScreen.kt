@@ -73,8 +73,14 @@ fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
             .collect { page ->
                 val monthOffset = page - initialPage
                 val newMonth = YearMonth.now().plusMonths(monthOffset.toLong())
-                viewModel.setCurrentMonth(newMonth)
-                viewModel.selectDay(newMonth.atDay(1))
+                // 현재 ViewModel의 currentMonth와 다를 경우에만 업데이트 및 1일 선택
+                if (newMonth != currentMonth) {
+                    viewModel.setCurrentMonth(newMonth)
+                    viewModel.selectDay(newMonth.atDay(1))
+                } else if (newMonth == YearMonth.now() && selectedDate != LocalDate.now()) {
+                    // 현재 월로 돌아왔을 때, 오늘 날짜가 선택되어 있지 않으면 오늘 날짜 선택
+                    viewModel.selectDay(LocalDate.now())
+                }
             }
     }
 
