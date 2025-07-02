@@ -1,4 +1,3 @@
-
 package com.example.myroutine.features.calendar
 
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -88,7 +87,9 @@ fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
 
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -97,7 +98,11 @@ fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
                     pagerState.animateScrollToPage(pagerState.currentPage - 1)
                 }
             }) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Previous Month")
+                Icon(
+                    Icons.Default.ArrowBack,
+                    contentDescription = "Previous Month",
+                    tint = MaterialTheme.colorScheme.onBackground
+                )
             }
             Text(
                 text = "${currentMonth.year}년 ${currentMonth.monthValue}월",
@@ -111,7 +116,11 @@ fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
                     pagerState.animateScrollToPage(pagerState.currentPage + 1)
                 }
             }) {
-                Icon(Icons.Default.ArrowForward, contentDescription = "Next Month")
+                Icon(
+                    Icons.Default.ArrowForward,
+                    contentDescription = "Next Month",
+                    tint = MaterialTheme.colorScheme.onBackground
+                )
             }
             IconButton(onClick = {
                 viewModel.goToToday()
@@ -122,7 +131,7 @@ fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
                 Text(
                     text = stringResource(id = R.string.today),
                     style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color = MaterialTheme.colorScheme.onBackground
                 )
             }
         }
@@ -155,7 +164,9 @@ fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
             text = "날짜를 선택해주세요.",
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             textAlign = TextAlign.Center
         )
     }
@@ -186,7 +197,10 @@ fun CalendarGrid(
                     modifier = Modifier.padding(4.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault()))
+                    Text(
+                        text = dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault()),
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
                 }
             }
         }
@@ -194,7 +208,9 @@ fun CalendarGrid(
         // Days of the month
         LazyVerticalGrid(
             columns = GridCells.Fixed(7),
-            modifier = Modifier.fillMaxWidth().height(280.dp) // 고정 높이
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(280.dp) // 고정 높이
         ) {
             items(calendarDays) { calendarDay ->
                 val day = calendarDay.date
