@@ -50,6 +50,8 @@ import java.time.format.TextStyle
 import java.util.Locale
 
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import kotlinx.coroutines.flow.debounce
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -97,7 +99,13 @@ fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
             }) {
                 Icon(Icons.Default.ArrowBack, contentDescription = "Previous Month")
             }
-            Text(text = "${currentMonth.year}년 ${currentMonth.monthValue}월")
+            Text(
+                text = "${currentMonth.year}년 ${currentMonth.monthValue}월",
+                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.weight(1f),
+                textAlign = TextAlign.Center
+            )
             IconButton(onClick = {
                 coroutineScope.launch {
                     pagerState.animateScrollToPage(pagerState.currentPage + 1)
@@ -111,7 +119,11 @@ fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
                     pagerState.scrollToPage(initialPage)
                 }
             }) {
-                Text(text = stringResource(id = R.string.today))
+                Text(
+                    text = stringResource(id = R.string.today),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
             }
         }
 
@@ -139,7 +151,13 @@ fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
                     ListItem(headlineContent = { Text(it) })
                 }
             }
-        } ?: Text(text = "날짜를 선택해주세요.")
+        } ?: Text(
+            text = "날짜를 선택해주세요.",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            textAlign = TextAlign.Center
+        )
     }
 }
 
