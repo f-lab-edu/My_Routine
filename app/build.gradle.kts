@@ -45,6 +45,18 @@ android {
     buildFeatures {
         compose = true
     }
+
+    packaging {
+        resources {
+            excludes += setOf(
+                "META-INF/LICENSE.md",
+                "META-INF/LICENSE-notice.md",
+                "META-INF/DEPENDENCIES",
+                "META-INF/NOTICE",
+                "META-INF/NOTICE.txt"
+            )
+        }
+    }
 }
 
 dependencies {
@@ -53,10 +65,17 @@ dependencies {
 
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
+    implementation(libs.androidx.hilt.common)
+    implementation(libs.androidx.work.runtime.ktx)
     ksp(libs.hilt.compiler)
 
+    androidTestImplementation(libs.mockk.android)
+    androidTestImplementation(libs.androidx.core.test.ktx)
+    androidTestImplementation(libs.androidx.work.testing)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.androidx.core.test.ktx)
+    testImplementation(libs.androidx.work.testing)
 
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
@@ -79,4 +98,5 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    testImplementation(kotlin("test"))
 }

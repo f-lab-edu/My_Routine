@@ -8,6 +8,7 @@ import com.example.myroutine.common.L
 import com.example.myroutine.data.local.entity.HolidayType
 import com.example.myroutine.data.local.entity.RepeatType
 import com.example.myroutine.data.local.entity.RoutineItem
+import com.example.myroutine.data.alarm.AlarmScheduler
 import com.example.myroutine.data.repository.RoutineRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +20,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddRoutineViewModel @Inject constructor(
-    private val repository: RoutineRepository
+    private val repository: RoutineRepository,
+    private val alarmScheduler: AlarmScheduler
 ) : ViewModel() {
 
     companion object {
@@ -133,7 +135,6 @@ class AddRoutineViewModel @Inject constructor(
                 repeatIntervalDays = null
                 startDate = null
             }
-
             TAB_INDEX_WEEKLY -> {
                 repeatDays = _selectedDays.value
                 if (repeatDays.isEmpty()) {
@@ -147,19 +148,16 @@ class AddRoutineViewModel @Inject constructor(
                 repeatIntervalDays = null
                 startDate = null
             }
-
             TAB_INDEX_EVERY_X_DAYS -> {
                 if (_repeatIntervalText.value.isBlank()) {
                     onError(R.string.toast_repeat_required)
                     return
                 }
-
                 val interval = _repeatIntervalText.value.toIntOrNull()
                 if (interval == null || interval <= 0) {
                     onError(R.string.toast_repeat_required)
                     return
                 }
-
                 specificDate = null
                 repeatDays = null
                 holidayType = null
@@ -167,7 +165,6 @@ class AddRoutineViewModel @Inject constructor(
                 startDate = LocalDate.now()
                 repeatIntervalDays = interval
             }
-
             else -> {
                 L.w(this::class.simpleName.toString(), "Validation failed: invalid tab index $tabIndex")
                 specificDate = null
@@ -194,7 +191,13 @@ class AddRoutineViewModel @Inject constructor(
 
         viewModelScope.launch {
             repository.insertRoutine(routine)
-            L.d(this::class.simpleName.toString(), "Routine saved successfully")
+            if (routine.alarmTime != null) {
+                try {
+                    alarmScheduler.schedule(routine)
+                } catch (e: Exception) {
+                    L.e(this@AddRoutineViewModel::class.simpleName.toString(), "Failed to schedule alarm", e)
+                }
+            }
             onSuccess()
         }
     }
