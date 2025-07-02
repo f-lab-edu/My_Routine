@@ -132,11 +132,12 @@ class CalendarViewModelTest {
      */
     @Test
     fun `calendarDays should generate correct days for current month`() = runTest {
-        // Given: 현재 월과 선택된 날짜
+        // Given: ViewModel의 현재 월과 선택된 날짜를 설정
         val currentMonth = YearMonth.now()
         val selectedDate = LocalDate.now()
-        viewModel.goToToday() // ViewModel 상태를 현재로 설정
-        advanceUntilIdle()
+        viewModel._currentMonth.value = currentMonth // ViewModel의 _currentMonth를 직접 설정
+        viewModel._selectedDate.value = selectedDate // ViewModel의 _selectedDate를 직접 설정
+        advanceUntilIdle() // ViewModel의 Flow가 업데이트될 때까지 대기
 
         // When: calendarDays Flow의 값 가져오기
         val days = viewModel.calendarDays.value
@@ -148,20 +149,21 @@ class CalendarViewModelTest {
         // Then:
         // 1. 월 시작 전 빈 날짜 확인
         for (i in 0 until firstDayOfWeekValue) {
-            assertEquals(null, days[i].date)
+            assertEquals("월 시작 전 빈 날짜가 null이어야 합니다. 인덱스: $i", null, days[i].date)
         }
 
         // 2. 실제 월의 날짜 확인
         for (i in 0 until daysInMonth) {
             val expectedDate = currentMonth.atDay(i + 1)
-            assertEquals(expectedDate, days[firstDayOfWeekValue + i].date)
-            assertEquals(expectedDate == selectedDate, days[firstDayOfWeekValue + i].isSelected)
-            assertEquals(expectedDate.dayOfWeek == DayOfWeek.SATURDAY || expectedDate.dayOfWeek == DayOfWeek.SUNDAY, days[firstDayOfWeekValue + i].isWeekend)
-            assertEquals(false, days[firstDayOfWeekValue + i].isHoliday) // 공휴일은 아직 목업되지 않음
+            val actualCalendarDay = days[firstDayOfWeekValue + i]
+            assertEquals("날짜가 일치해야 합니다. 인덱스: ${firstDayOfWeekValue + i}", expectedDate, actualCalendarDay.date)
+            assertEquals("선택된 날짜가 일치해야 합니다. 인덱스: ${firstDayOfWeekValue + i}", expectedDate == selectedDate, actualCalendarDay.isSelected)
+            assertEquals("주말 여부가 올바르게 식별되어야 합니다. 인덱스: ${firstDayOfWeekValue + i}", expectedDate.dayOfWeek == DayOfWeek.SATURDAY || expectedDate.dayOfWeek == DayOfWeek.SUNDAY, actualCalendarDay.isWeekend)
+            assertEquals("공휴일 여부가 올바르게 식별되어야 합니다. 인덱스: ${firstDayOfWeekValue + i}", false, actualCalendarDay.isHoliday) // 공휴일은 아직 목업되지 않음
         }
 
         // 3. 총 날짜 수가 42개인지 확인 (고정된 6주)
-        assertEquals(42, days.size)
+        assertEquals("총 날짜 수가 42개여야 합니다.", 42, days.size)
     }
 
     /**
