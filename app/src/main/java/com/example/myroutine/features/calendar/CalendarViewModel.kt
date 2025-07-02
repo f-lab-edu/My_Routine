@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.combine
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
 data class CalendarDay(
     val date: LocalDate?,
@@ -15,9 +17,6 @@ data class CalendarDay(
     val isWeekend: Boolean,
     val isHoliday: Boolean
 )
-
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 
 @HiltViewModel
 class CalendarViewModel @Inject constructor() : ViewModel() {
@@ -32,13 +31,13 @@ class CalendarViewModel @Inject constructor() : ViewModel() {
     private val _holidays = MutableStateFlow<Set<LocalDate>>(emptySet())
     val holidays: StateFlow<Set<LocalDate>> = _holidays.asStateFlow()
 
-    val calendarDays: StateFlow<List<CalendarDay>> = combine(
+    val calendarDays = combine(
         _currentMonth,
         _selectedDate,
         _holidays
     ) { month, selected, holidays ->
         generateCalendarDays(month, selected, holidays)
-    } as StateFlow<List<CalendarDay>>
+    }
 
     init {
         // When the month changes, automatically select the 1st day of the new month
