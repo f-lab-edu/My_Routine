@@ -114,7 +114,7 @@ fun AppScaffold(onBackPressedDispatcher: OnBackPressedDispatcher) {
                         navController,
                         Routes.CALENDAR
                     ) {
-                        Text("Calendar")
+                        CalendarScreen()
                     }
                 }
                 composable(Routes.REPORT) {
