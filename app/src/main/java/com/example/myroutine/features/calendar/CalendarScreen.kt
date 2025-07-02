@@ -25,6 +25,15 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -33,16 +42,43 @@ fun CalendarScreen() {
     val pagerState = rememberPagerState(initialPage = Int.MAX_VALUE / 2) {
         Int.MAX_VALUE
     }
+    val coroutineScope = rememberCoroutineScope()
+
+    val displayMonth = remember {
+        derivedStateOf {
+            val monthOffset = pagerState.currentPage - (Int.MAX_VALUE / 2)
+            currentMonth.plusMonths(monthOffset.toLong())
+        }
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        // Calendar Header (Year and Month selection)
-        Text(text = "Year Month Selector (Placeholder)")
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = {
+                coroutineScope.launch {
+                    pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                }
+            }) {
+                Icon(Icons.Default.ArrowBack, contentDescription = "Previous Month")
+            }
+            Text(text = "${displayMonth.value.year}년 ${displayMonth.value.monthValue}월")
+            IconButton(onClick = {
+                coroutineScope.launch {
+                    pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                }
+            }) {
+                Icon(Icons.Default.ArrowForward, contentDescription = "Next Month")
+            }
+        }
 
         // Calendar Grid (Swipeable)
         HorizontalPager(state = pagerState) { page ->
             val monthOffset = page - (Int.MAX_VALUE / 2)
-            val displayMonth = currentMonth.plusMonths(monthOffset.toLong())
-            CalendarGrid(displayMonth = displayMonth)
+            val monthToDisplay = currentMonth.plusMonths(monthOffset.toLong())
+            CalendarGrid(displayMonth = monthToDisplay)
         }
 
         // Routine List for selected date (Placeholder)
