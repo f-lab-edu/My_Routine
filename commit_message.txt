@@ -1,0 +1,4 @@
+fix: CalendarViewModel ClassCastException 재발 해결
+
+`CalendarViewModel`의 `calendarDays` 속성에서 `combine` 함수의 결과를 `StateFlow`로 강제 캐스팅하는 부분이 다시 추가되어 `ClassCastException`이 재발했습니다.
+해당 캐스팅을 다시 제거하여 `combine` 함수의 반환 타입인 일반 `Flow`를 따르도록 수정했습니다.
