@@ -3,6 +3,7 @@ package com.example.myroutine.data.repository
 import android.util.Log
 import com.example.myroutine.data.local.dao.RoutineCheckDao
 import com.example.myroutine.data.local.dao.RoutineDao
+import com.example.myroutine.data.local.entity.RepeatType
 import com.example.myroutine.data.local.entity.RoutineCheck
 import com.example.myroutine.data.local.entity.RoutineItem
 import java.time.LocalDate
@@ -51,15 +52,37 @@ class RoutineRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getTodayRoutines(today: LocalDate): List<RoutineItem> {
-        val routines = routineDao.getAll()
+        val allRoutines = routineDao.getAll()
         val checks = checkDao.getChecksForDate(today).associateBy { it.routineId }
 
-        Log.d(TAG, "Checking completion status for ${routines.size} routines on $today")
+        Log.d(TAG, "Filtering routines for $today")
 
-        return routines.map { routine ->
+        return allRoutines.filter { routine ->
+            isRoutineApplicableForDate(routine, today)
+        }.map { routine ->
             val isDone = checks.containsKey(routine.id)
             Log.d(TAG, "Routine id=${routine.id}, title=${routine.title} isDone=$isDone")
             routine.copy(isDone = isDone)
+        }
+    }
+
+    internal fun isRoutineApplicableForDate(routine: RoutineItem, date: LocalDate): Boolean {
+        return when (routine.repeatType) {
+            RepeatType.NONE -> routine.specificDate == date
+            RepeatType.ONCE -> routine.specificDate == date
+            RepeatType.WEEKLY -> routine.repeatDays?.contains(date.dayOfWeek.value) == true
+            RepeatType.EVERY_X_DAYS -> {
+                routine.startDate?.let { startDate ->
+                    val daysBetween = java.time.temporal.ChronoUnit.DAYS.between(startDate, date).toInt()
+                    routine.repeatIntervalDays?.let { interval ->
+                        daysBetween >= 0 && daysBetween % interval == 0
+                    } ?: false
+                } ?: false
+            }
+            RepeatType.WEEKDAY_HOLIDAY -> {
+                // TODO: Implement actual holiday check. For now, assume weekdays are not holidays.
+                date.dayOfWeek != java.time.DayOfWeek.SATURDAY && date.dayOfWeek != java.time.DayOfWeek.SUNDAY
+            }
         }
     }
 }
