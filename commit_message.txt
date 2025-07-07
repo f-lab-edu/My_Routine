@@ -1,6 +1,5 @@
-feat: 캘린더 화면에 실제 루틴 데이터 연동 및 UI 업데이트
+refactor: CalendarViewModelTest Mockito에서 MockK로 전환 및 의존성 주입 수정
 
-- `CalendarViewModel`: `RoutineRepository`를 주입받아 선택된 날짜의 루틴 데이터를 가져오고, 루틴 완료 상태를 업데이트하는 로직을 추가했습니다.
-- `CalendarScreen`: 더미 루틴 목록을 `CalendarViewModel`에서 가져온 실제 루틴 데이터로 교체했습니다.
-  - 루틴의 완료 상태와 날짜를 비교하여 완료된 루틴은 초록색, 날짜가 지났지만 완료되지 않은 루틴은 빨간색 배경을 적용하도록 UI를 업데이트했습니다.
-- `strings.xml` 및 `values-ko/strings.xml`: 캘린더 화면에 필요한 새로운 문자열 리소스를 추가하고, 영어 및 한국어 번역을 제공했습니다.
+`CalendarViewModelTest.kt` 파일에서 Mockito 관련 코드를 MockK로 전환했습니다.
+또한, `CalendarViewModel` 생성자에 `RoutineRepository`의 MockK 객체를 올바르게 주입하도록 `setup()` 메서드를 수정했습니다.
+이는 테스트 코드의 일관성을 유지하고, MockK의 코루틴 테스트 지원 기능을 활용하기 위함입니다.
