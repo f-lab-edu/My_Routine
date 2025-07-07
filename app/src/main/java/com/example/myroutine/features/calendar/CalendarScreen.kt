@@ -81,6 +81,8 @@ fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
                 } else if (newMonth == YearMonth.now() && selectedDate != LocalDate.now()) {
                     // 현재 월로 돌아왔을 때, 오늘 날짜가 선택되어 있지 않으면 오늘 날짜 선택
                     viewModel.selectDay(LocalDate.now())
+                } else {
+                    // Do nothing
                 }
             }
     }
@@ -105,7 +107,7 @@ fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
                 )
             }
             Text(
-                text = "${currentMonth.year}년 ${currentMonth.monthValue}월",
+                text = stringResource(id = R.string.calendar_year_month, currentMonth.year, currentMonth.monthValue),
                 style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.weight(1f),
@@ -141,7 +143,6 @@ fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
             val monthOffset = page - initialPage
             val monthToDisplay = YearMonth.now().plusMonths(monthOffset.toLong())
             CalendarGrid(
-                displayMonth = currentMonth, // ViewModel의 currentMonth 사용
                 selectedDate = selectedDate,
                 calendarDays = calendarDays,
                 onDayClick = { date -> viewModel.selectDay(date) }
@@ -149,32 +150,21 @@ fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
         }
 
         // Routine List for selected date
-        selectedDate?.let { date ->
-            val dummyRoutines = listOf(
-                "${date.dayOfMonth}일 루틴 1",
-                "${date.dayOfMonth}일 루틴 2",
-                "${date.dayOfMonth}일 루틴 3"
-            )
-            LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                items(dummyRoutines) {
-                    ListItem(headlineContent = { Text(it) })
-                }
-            }
-        } ?: Text(
-            text = "날짜를 선택해주세요.",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            textAlign = TextAlign.Center
+        val dummyRoutines = listOf(
+            stringResource(id = R.string.calendar_routine_item, selectedDate.dayOfMonth, 1),
+            stringResource(id = R.string.calendar_routine_item, selectedDate.dayOfMonth, 2),
+            stringResource(id = R.string.calendar_routine_item, selectedDate.dayOfMonth, 3)
         )
+        LazyColumn(modifier = Modifier.fillMaxWidth()) {
+            items(dummyRoutines) {
+                ListItem(headlineContent = { Text(it) })
+            }
+        }
     }
 }
 
 @Composable
 fun CalendarGrid(
-    displayMonth: YearMonth,
     selectedDate: LocalDate?,
     calendarDays: List<CalendarDay>,
     onDayClick: (LocalDate) -> Unit

@@ -39,11 +39,7 @@ class CalendarViewModel @Inject constructor() : ViewModel() {
         generateCalendarDays(month, selected, holidays)
     }
 
-    init {
-        // When the month changes, automatically select the 1st day of the new month
-        _currentMonth.value = YearMonth.now()
-        _selectedDate.value = LocalDate.now()
-    }
+    
 
     fun goToPreviousMonth() {
         _currentMonth.value = _currentMonth.value.minusMonths(1)
