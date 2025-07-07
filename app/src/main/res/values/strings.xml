@@ -43,4 +43,7 @@
     <string name="permission_dialog_title">Exact Alarm Permission Required</string>
     <string name="permission_dialog_text">Exact alarm scheduling requires permission. Would you like to open the settings?</string>
     <string name="notification_content_text">It\'s time to perform your routine!</string>
+    <string name="calendar_year_month">%1$d-%2$d</string>
+    <string name="calendar_routine_item">Routine %2$d for day %1$d</string>
+    <string name="calendar_select_date_message">Please select a date.</string>
 </resources>

@@ -44,6 +44,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.myroutine.R
 import com.example.myroutine.common.LogTags.MAIN_SCREEN
 import com.example.myroutine.features.add.AddRoutineScreen
+import com.example.myroutine.features.calendar.CalendarScreen
 import com.example.myroutine.features.today.TodayScreen
 
 
@@ -114,7 +115,7 @@ fun AppScaffold(onBackPressedDispatcher: OnBackPressedDispatcher) {
                         navController,
                         Routes.CALENDAR
                     ) {
-                        Text("Calendar")
+                        CalendarScreen()
                     }
                 }
                 composable(Routes.REPORT) {
