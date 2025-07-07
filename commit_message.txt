@@ -1,5 +1,5 @@
-refactor: CalendarViewModelTest Mockito에서 MockK로 전환 및 의존성 주입 수정
+feat: RoutineRepositoryImpl 필터링 로직 테스트 추가
 
-`CalendarViewModelTest.kt` 파일에서 Mockito 관련 코드를 MockK로 전환했습니다.
-또한, `CalendarViewModel` 생성자에 `RoutineRepository`의 MockK 객체를 올바르게 주입하도록 `setup()` 메서드를 수정했습니다.
-이는 테스트 코드의 일관성을 유지하고, MockK의 코루틴 테스트 지원 기능을 활용하기 위함입니다.
+`RoutineRepositoryImpl`의 `isRoutineApplicableForDate` 메서드에 대한 단위 테스트를 추가했습니다.
+이 테스트는 `NONE`, `ONCE`, `WEEKLY`, `EVERY_X_DAYS`, `WEEKDAY_HOLIDAY` 등 다양한 반복 유형에 대해 루틴이 특정 날짜에 올바르게 필터링되는지 검증합니다.
+이를 통해 필터링 로직의 정확성을 보장하고 코드의 안정성을 높입니다.
