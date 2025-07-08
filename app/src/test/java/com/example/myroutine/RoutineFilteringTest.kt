@@ -75,4 +75,23 @@ class RoutineFilteringTest {
         assertFalse(repository.isRoutineApplicableForDate(routine, saturday))
         assertFalse(repository.isRoutineApplicableForDate(routine, sunday))
     }
+
+    @Test
+    fun `isRoutineApplicableForDate should not apply weekly routine before its start date`() {
+        val startDate = LocalDate.of(2024, 7, 8) // Monday
+        val previousMonday = LocalDate.of(2024, 7, 1) // Previous Monday
+        val routine = RoutineItem.mock(
+            "Weekly Routine with Start Date",
+            repeatDays = listOf(DayOfWeek.MONDAY.value),
+            repeatType = RepeatType.WEEKLY,
+            startDate = startDate
+        )
+
+        // Should be applicable on or after startDate
+        assertTrue(repository.isRoutineApplicableForDate(routine, startDate))
+        assertTrue(repository.isRoutineApplicableForDate(routine, startDate.plusWeeks(1)))
+
+        // Should NOT be applicable before startDate, even if it's the correct day of week
+        assertFalse(repository.isRoutineApplicableForDate(routine, previousMonday))
+    }
 }
