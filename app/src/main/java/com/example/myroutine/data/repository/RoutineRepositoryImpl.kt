@@ -66,11 +66,35 @@ class RoutineRepositoryImpl @Inject constructor(
         }
     }
 
-    internal fun isRoutineApplicableForDate(routine: RoutineItem, date: LocalDate): Boolean {
+    override suspend fun getRoutineChecksForPeriod(startDate: LocalDate, endDate: LocalDate): List<RoutineCheck> {
+        return checkDao.getChecksForPeriod(startDate, endDate)
+    }
+
+    override suspend fun getRoutineItemsForPeriod(startDate: LocalDate, endDate: LocalDate): List<RoutineItem> {
+        val allRoutines = routineDao.getAll()
+        val routinesInPeriod = mutableListOf<RoutineItem>()
+        var currentDate = startDate
+        while (!currentDate.isAfter(endDate)) {
+            allRoutines.filter { routine ->
+                isRoutineApplicableForDate(routine, currentDate)
+            }.forEach { routine ->
+                if (!routinesInPeriod.any { it.id == routine.id }) {
+                    routinesInPeriod.add(routine)
+                }
+            }
+            currentDate = currentDate.plusDays(1)
+        }
+        return routinesInPeriod
+    }
+
+    override fun isRoutineApplicableForDate(routine: RoutineItem, date: LocalDate): Boolean {
         return when (routine.repeatType) {
             RepeatType.NONE -> routine.specificDate == date
             RepeatType.ONCE -> routine.specificDate == date
-            RepeatType.WEEKLY -> routine.repeatDays?.contains(date.dayOfWeek.value) == true
+            RepeatType.WEEKLY -> {
+                routine.repeatDays?.contains(date.dayOfWeek.value) == true &&
+                (routine.startDate == null || !date.isBefore(routine.startDate))
+            }
             RepeatType.EVERY_X_DAYS -> {
                 routine.startDate?.let { startDate ->
                     val daysBetween = java.time.temporal.ChronoUnit.DAYS.between(startDate, date).toInt()

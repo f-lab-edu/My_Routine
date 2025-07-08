@@ -45,6 +45,7 @@ import com.example.myroutine.R
 import com.example.myroutine.common.LogTags.MAIN_SCREEN
 import com.example.myroutine.features.add.AddRoutineScreen
 import com.example.myroutine.features.calendar.CalendarScreen
+import com.example.myroutine.features.report.ReportScreen
 import com.example.myroutine.features.today.TodayScreen
 
 
@@ -124,7 +125,7 @@ fun AppScaffold(onBackPressedDispatcher: OnBackPressedDispatcher) {
                         navController,
                         Routes.REPORT
                     ) {
-                        Text("Report")
+                        ReportScreen()
                     }
                 }
                 composable(Routes.SETTINGS) {
