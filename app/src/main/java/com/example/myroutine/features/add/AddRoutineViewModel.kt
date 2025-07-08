@@ -133,7 +133,7 @@ class AddRoutineViewModel @Inject constructor(
                 repeatDays = null
                 holidayType = null
                 repeatIntervalDays = null
-                startDate = null
+                startDate = LocalDate.now()
             }
             TAB_INDEX_WEEKLY -> {
                 repeatDays = _selectedDays.value
@@ -146,7 +146,7 @@ class AddRoutineViewModel @Inject constructor(
                 repeatType = if (_excludeHolidays.value) RepeatType.WEEKDAY_HOLIDAY else RepeatType.WEEKLY
                 holidayType = if (_excludeHolidays.value) HolidayType.WEEKDAY else null
                 repeatIntervalDays = null
-                startDate = null
+                startDate = LocalDate.now()
             }
             TAB_INDEX_EVERY_X_DAYS -> {
                 if (_repeatIntervalText.value.isBlank()) {
