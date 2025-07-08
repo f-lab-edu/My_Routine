@@ -33,11 +33,27 @@ data class RoutineItem(
     companion object {
         fun mock(
             title: String,
-            isDone: Boolean = false
+            id: Int = 0,
+            isDone: Boolean = false,
+            repeatType: RepeatType = RepeatType.NONE,
+            repeatDays: List<Int>? = null,
+            specificDate: LocalDate? = null,
+            holidayType: HolidayType? = null,
+            repeatIntervalDays: Int? = null,
+            startDate: LocalDate? = null,
+            alarmTime: LocalTime? = null
         ): RoutineItem {
             return RoutineItem(
+                id = id,
                 title = title,
-                isDone = isDone
+                isDone = isDone,
+                repeatType = repeatType,
+                repeatDays = repeatDays,
+                specificDate = specificDate,
+                holidayType = holidayType,
+                repeatIntervalDays = repeatIntervalDays,
+                startDate = startDate,
+                alarmTime = alarmTime
             )
         }
     }

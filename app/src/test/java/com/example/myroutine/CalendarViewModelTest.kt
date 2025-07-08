@@ -1,6 +1,9 @@
 package com.example.myroutine
 
+import com.example.myroutine.data.repository.RoutineRepository
 import com.example.myroutine.features.calendar.CalendarViewModel
+import io.mockk.coEvery
+import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -10,23 +13,27 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
-import org.junit.Before
-import org.junit.Test
 import org.junit.Assert.assertEquals
+import org.junit.Before
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
+import kotlin.test.Test
 
 @ExperimentalCoroutinesApi
 class CalendarViewModelTest {
 
     private lateinit var viewModel: CalendarViewModel
     private val testDispatcher = StandardTestDispatcher()
+    private lateinit var mockRoutineRepository: RoutineRepository
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        viewModel = CalendarViewModel()
+        mockRoutineRepository = mockk<RoutineRepository>()
+        // 기본적으로 getTodayRoutines는 빈 리스트를 반환하도록 설정
+        coEvery { mockRoutineRepository.getTodayRoutines(any()) } returns emptyList()
+        viewModel = CalendarViewModel(mockRoutineRepository)
     }
 
     @After

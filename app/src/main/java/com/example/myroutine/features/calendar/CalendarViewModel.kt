@@ -1,6 +1,7 @@
 package com.example.myroutine.features.calendar
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -10,6 +11,9 @@ import java.time.LocalDate
 import java.time.YearMonth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import com.example.myroutine.data.repository.RoutineRepository
+import com.example.myroutine.data.local.entity.RoutineItem
+import kotlinx.coroutines.launch
 
 data class CalendarDay(
     val date: LocalDate?,
@@ -19,7 +23,9 @@ data class CalendarDay(
 )
 
 @HiltViewModel
-class CalendarViewModel @Inject constructor() : ViewModel() {
+class CalendarViewModel @Inject constructor(
+    private val routineRepository: RoutineRepository
+) : ViewModel() {
 
     internal val _currentMonth = MutableStateFlow(YearMonth.now())
     val currentMonth: StateFlow<YearMonth> = _currentMonth.asStateFlow()
@@ -37,6 +43,17 @@ class CalendarViewModel @Inject constructor() : ViewModel() {
         _holidays
     ) { month, selected, holidays ->
         generateCalendarDays(month, selected, holidays)
+    }
+
+    private val _routinesForSelectedDate = MutableStateFlow<List<RoutineItem>>(emptyList())
+    val routinesForSelectedDate: StateFlow<List<RoutineItem>> = _routinesForSelectedDate.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            _selectedDate.collect { date ->
+                _routinesForSelectedDate.value = routineRepository.getTodayRoutines(date)
+            }
+        }
     }
 
     
@@ -58,6 +75,13 @@ class CalendarViewModel @Inject constructor() : ViewModel() {
 
     fun selectDay(date: LocalDate) {
         _selectedDate.value = date
+    }
+
+    fun onRoutineChecked(routineId: Int, isChecked: Boolean) {
+        viewModelScope.launch {
+            routineRepository.setRoutineChecked(routineId, _selectedDate.value, isChecked)
+            _routinesForSelectedDate.value = routineRepository.getTodayRoutines(_selectedDate.value)
+        }
     }
 
     fun setCurrentMonth(yearMonth: YearMonth) {

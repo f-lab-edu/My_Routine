@@ -47,6 +47,8 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
+import androidx.compose.material3.Checkbox
+import com.example.myroutine.data.local.entity.RoutineItem
 
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.text.font.FontWeight
@@ -59,6 +61,7 @@ fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
     val currentMonth by viewModel.currentMonth.collectAsState()
     val selectedDate by viewModel.selectedDate.collectAsState()
     val calendarDays by viewModel.calendarDays.collectAsState(initial = emptyList())
+    val routinesForSelectedDate by viewModel.routinesForSelectedDate.collectAsState()
 
     val pageCount = 1200 // 충분히 큰 유한한 페이지 수
     val initialPage = pageCount / 2
@@ -150,15 +153,51 @@ fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
         }
 
         // Routine List for selected date
-        val dummyRoutines = listOf(
-            stringResource(id = R.string.calendar_routine_item, selectedDate.dayOfMonth, 1),
-            stringResource(id = R.string.calendar_routine_item, selectedDate.dayOfMonth, 2),
-            stringResource(id = R.string.calendar_routine_item, selectedDate.dayOfMonth, 3)
-        )
-        LazyColumn(modifier = Modifier.fillMaxWidth()) {
-            items(dummyRoutines) {
-                ListItem(headlineContent = { Text(it) })
+        if (selectedDate != null) {
+            if (routinesForSelectedDate.isEmpty()) {
+                Text(
+                    text = stringResource(id = R.string.calendar_select_date_message),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    textAlign = TextAlign.Center
+                )
+            } else {
+                LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                    items(routinesForSelectedDate) { routine ->
+                        val backgroundColor = when {
+                            routine.isDone && selectedDate.isBefore(LocalDate.now()) -> Color.Green.copy(alpha = 0.2f) // 완료된 과거 루틴
+                            routine.isDone && selectedDate.isEqual(LocalDate.now()) -> Color.Green.copy(alpha = 0.2f) // 완료된 오늘 루틴
+                            !routine.isDone && selectedDate.isBefore(LocalDate.now()) -> Color.Red.copy(alpha = 0.2f) // 미완료 과거 루틴
+                            else -> Color.Transparent // 미래 루틴 또는 미완료 오늘 루틴
+                        }
+                        ListItem(
+                            headlineContent = { Text(routine.title) },
+                            modifier = Modifier.background(backgroundColor),
+                            trailingContent = {
+                                Checkbox(
+                                    checked = routine.isDone,
+                                    onCheckedChange = { isChecked ->
+                                        viewModel.onRoutineChecked(routine.id, isChecked)
+                                    }
+                                )
+                            }
+                        )
+                    }
+                }
             }
+        } else {
+            Text(
+                text = stringResource(id = R.string.calendar_select_date_message),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                textAlign = TextAlign.Center
+            )
         }
     }
 }
