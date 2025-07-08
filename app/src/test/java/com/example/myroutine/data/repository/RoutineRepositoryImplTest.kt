@@ -24,8 +24,10 @@ class RoutineRepositoryImplTest {
 
     // 테스트 대상 Repository
     private lateinit var repository: RoutineRepositoryImpl
+
     // Mockk으로 생성된 RoutineDao 인스턴스
     private val routineDao: RoutineDao = mockk()
+
     // Mockk으로 생성된 RoutineCheckDao 인스턴스
     private val checkDao: RoutineCheckDao = mockk()
 
@@ -77,15 +79,34 @@ class RoutineRepositoryImplTest {
         val endDate = LocalDate.of(2024, 7, 7) // 일요일
 
         // Given: 가상의 루틴 데이터를 정의합니다.
-        val routine1 = RoutineItem.mock(id = 1, title = "Daily Routine") // 매일 적용 가능
-        val routine2 = RoutineItem.mock(id = 2, title = "Weekly Monday Routine", repeatType = RepeatType.WEEKLY, repeatDays = listOf(1)) // 월요일에만 적용 가능
-        val routine3 = RoutineItem.mock(id = 3, title = "Once on July 10", repeatType = RepeatType.ONCE, specificDate = LocalDate.of(2024, 7, 10)) // 기간 밖에 있는 루틴
+        val routine1 = RoutineItem.mock(
+            id = 1,
+            title = "Daily Routine",
+            repeatType = RepeatType.EVERY_X_DAYS,
+            repeatIntervalDays = 1,
+            startDate = LocalDate.of(2024, 7, 1)  // 시작일도 명시해주는 게 좋아요
+        ) // 매일 적용 가능
+        val routine2 = RoutineItem.mock(
+            id = 2,
+            title = "Weekly Monday Routine",
+            repeatType = RepeatType.WEEKLY,
+            repeatDays = listOf(1)
+        ) // 월요일에만 적용 가능
+        val routine3 = RoutineItem.mock(
+            id = 3,
+            title = "Once on July 10",
+            repeatType = RepeatType.ONCE,
+            specificDate = LocalDate.of(2024, 7, 10)
+        ) // 기간 밖에 있는 루틴
 
         // When: routineDao.getAll이 호출될 때, 모든 루틴을 반환하도록 목킹합니다.
         coEvery { routineDao.getAll() } returns listOf(routine1, routine2, routine3)
 
         // Then: getRoutineItemsForPeriod를 호출하고 결과가 예상과 일치하는지 단언합니다.
         val result = repository.getRoutineItemsForPeriod(startDate, endDate)
+
+        println("Result routines:")
+        result.forEach { println("- ${it.title} (id=${it.id})") }
 
         // routine1은 포함되어야 합니다 (매일 적용 가능).
         // routine2는 포함되어야 합니다 (7월 1일 월요일에 적용 가능).
