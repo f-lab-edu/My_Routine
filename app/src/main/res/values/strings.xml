@@ -46,4 +46,12 @@
     <string name="calendar_year_month">%1$d-%2$d</string>
     <string name="calendar_routine_item">Routine %2$d for day %1$d</string>
     <string name="calendar_select_date_message">Please select a date.</string>
+    <string name="report_weekly">Weekly</string>
+    <string name="report_monthly">Monthly</string>
+    <string name="report_completion_rate">Completion Rate</string>
+    <string name="report_most_kept_routine">Most Kept Routine</string>
+    <string name="report_most_missed_routine">Most Missed Routine</string>
+    <string name="report_na">N/A</string>
+    <string name="report_most_kept_routine_with_count">%1$s (%2$d times)</string>
+    <string name="report_most_missed_routine_with_count">%1$s (%2$d times)</string>
 </resources>
