@@ -52,7 +52,7 @@ class ReportViewModelTest {
     }
 
     @Test
-    fun `calculateReportData should correctly calculate completion rate`() = runTest {
+    fun calculateReportData_should_correctly_calculate_completion_rate() = runTest {
         val checks = listOf(
             RoutineCheck(routineId = 1, completeDate = LocalDate.of(2024, 7, 1)),
             RoutineCheck(routineId = 1, completeDate = LocalDate.of(2024, 7, 2)),
@@ -78,7 +78,7 @@ class ReportViewModelTest {
     }
 
     @Test
-    fun `calculateReportData should correctly identify most kept routine`() = runTest {
+    fun calculateReportData_should_correctly_identify_most_kept_routine() = runTest {
         val checks = listOf(
             RoutineCheck(routineId = 1, completeDate = LocalDate.of(2024, 7, 1)),
             RoutineCheck(routineId = 1, completeDate = LocalDate.of(2024, 7, 2)),
@@ -97,7 +97,7 @@ class ReportViewModelTest {
     }
 
     @Test
-    fun `calculateReportData should correctly identify most missed routine`() = runTest {
+    fun calculateReportData_should_correctly_identify_most_missed_routine() = runTest {
         val checks = listOf(
             RoutineCheck(routineId = 1, completeDate = LocalDate.of(2024, 7, 1)),
             RoutineCheck(routineId = 1, completeDate = LocalDate.of(2024, 7, 2)),
@@ -116,7 +116,7 @@ class ReportViewModelTest {
     }
 
     @Test
-    fun `calculateReportData should exclude future dates from calculation`() = runTest {
+    fun calculateReportData_should_exclude_future_dates_from_calculation() = runTest {
         val testToday = LocalDate.of(2024, 6, 15)
         coEvery { dateProvider.now() } returns testToday
 
@@ -142,7 +142,7 @@ class ReportViewModelTest {
     }
 
     @Test
-    fun `onEvent SelectPeriod should trigger data recalculation`() = runTest {
+    fun onEvent_SelectPeriod_should_trigger_data_recalculation() = runTest {
         coEvery { dateProvider.now() } returns LocalDate.of(2024, 7, 15)
 
         val monthlyChecks = listOf(

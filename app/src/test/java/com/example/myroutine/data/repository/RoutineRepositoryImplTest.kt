@@ -44,7 +44,7 @@ class RoutineRepositoryImplTest {
      * getRoutineChecksForPeriod 메서드가 지정된 기간 내의 체크 기록을 올바르게 반환하는지 테스트합니다.
      */
     @Test
-    fun getRoutineChecksForPeriodShouldReturnChecksWithinTheSpecifiedPeriod() = runTest {
+    fun getRoutineChecksForPeriod_should_return_checks_within_the_specified_period() = runTest {
         // Given: 테스트를 위한 시작 날짜와 종료 날짜를 정의합니다.
         val startDate = LocalDate.of(2024, 7, 1)
         val endDate = LocalDate.of(2024, 7, 7)
@@ -73,7 +73,7 @@ class RoutineRepositoryImplTest {
      * getRoutineItemsForPeriod 메서드가 지정된 기간 내에 적용 가능한 루틴을 올바르게 반환하는지 테스트합니다.
      */
     @Test
-    fun getRoutineItemsForPeriodShouldReturnApplicableRoutinesWithinThePeriod() = runTest {
+    fun getRoutineItemsForPeriod_should_return_applicable_routines_within_the_period() = runTest {
         // Given: 테스트를 위한 시작 날짜와 종료 날짜를 정의합니다.
         val startDate = LocalDate.of(2024, 7, 1) // 월요일
         val endDate = LocalDate.of(2024, 7, 7) // 일요일
