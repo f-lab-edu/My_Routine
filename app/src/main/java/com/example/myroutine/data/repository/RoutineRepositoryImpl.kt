@@ -66,11 +66,53 @@ class RoutineRepositoryImpl @Inject constructor(
         }
     }
 
-    internal fun isRoutineApplicableForDate(routine: RoutineItem, date: LocalDate): Boolean {
+    override suspend fun getRoutineChecksForPeriod(startDate: LocalDate, endDate: LocalDate): List<RoutineCheck> {
+        return checkDao.getChecksForPeriod(startDate, endDate)
+    }
+
+    override suspend fun getRoutineItemsForPeriod(startDate: LocalDate, endDate: LocalDate): List<RoutineItem> {
+        val routines = mutableListOf<RoutineItem>()
+        val addedRoutineIds = mutableSetOf<Int>()
+        var currentDate = startDate
+
+        // 먼저 반복 없는 루틴들(특정 날짜) 한번에 가져오기
+        routines.addAll(routineDao.getNonRepeatingRoutinesInPeriod(startDate, endDate).also {
+            addedRoutineIds.addAll(it.map { r -> r.id })
+        })
+
+        // 기간 내 날짜별로 반복되는 루틴 쿼리 호출
+        while (!currentDate.isAfter(endDate)) {
+            // WEEKLY
+            routineDao.getWeeklyRoutinesByDate(currentDate).forEach { routine ->
+                if (addedRoutineIds.add(routine.id)) {
+                    routines.add(routine)
+                }
+            }
+            // EVERY_X_DAYS
+            routineDao.getEveryXDaysRoutinesByDate(currentDate).forEach { routine ->
+                if (addedRoutineIds.add(routine.id)) {
+                    routines.add(routine)
+                }
+            }
+            // WEEKDAY_HOLIDAY
+            routineDao.getWeekdayHolidayRoutinesByDate(currentDate).forEach { routine ->
+                if (addedRoutineIds.add(routine.id)) {
+                    routines.add(routine)
+                }
+            }
+            currentDate = currentDate.plusDays(1)
+        }
+        return routines
+    }
+
+    override fun isRoutineApplicableForDate(routine: RoutineItem, date: LocalDate): Boolean {
         return when (routine.repeatType) {
             RepeatType.NONE -> routine.specificDate == date
             RepeatType.ONCE -> routine.specificDate == date
-            RepeatType.WEEKLY -> routine.repeatDays?.contains(date.dayOfWeek.value) == true
+            RepeatType.WEEKLY -> {
+                routine.repeatDays?.contains(date.dayOfWeek.value) == true &&
+                (routine.startDate == null || !date.isBefore(routine.startDate))
+            }
             RepeatType.EVERY_X_DAYS -> {
                 routine.startDate?.let { startDate ->
                     val daysBetween = java.time.temporal.ChronoUnit.DAYS.between(startDate, date).toInt()

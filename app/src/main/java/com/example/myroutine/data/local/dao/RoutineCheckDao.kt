@@ -22,4 +22,7 @@ interface RoutineCheckDao {
     @Query("SELECT * FROM RoutineCheck WHERE completeDate = :date")
     suspend fun getChecksForDate(date: LocalDate): List<RoutineCheck>
 
+    @Query("SELECT * FROM RoutineCheck WHERE completeDate BETWEEN :startDate AND :endDate")
+    suspend fun getChecksForPeriod(startDate: LocalDate, endDate: LocalDate): List<RoutineCheck>
+
 }
