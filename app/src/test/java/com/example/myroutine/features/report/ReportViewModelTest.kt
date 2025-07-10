@@ -63,7 +63,7 @@ class ReportViewModelTest {
     /**
      * 날짜와 기간을 선택하고, 이벤트를 전달하는 헬퍼 함수
      */
-    private suspend fun selectDateAndPeriod(date: LocalDate, period: PeriodType) {
+    private fun selectDateAndPeriod(date: LocalDate, period: PeriodType) {
         viewModel.onEvent(ReportEvent.SelectDate(date))
         viewModel.onEvent(ReportEvent.SelectPeriod(period))
     }
