@@ -14,6 +14,7 @@ import javax.inject.Inject
 import com.example.myroutine.data.repository.RoutineRepository
 import com.example.myroutine.data.local.entity.RoutineItem
 import kotlinx.coroutines.launch
+import com.example.myroutine.data.repository.HolidayRepository
 
 data class CalendarDay(
     val date: LocalDate?,
@@ -21,9 +22,6 @@ data class CalendarDay(
     val isWeekend: Boolean,
     val isHoliday: Boolean
 )
-
-import com.example.myroutine.data.repository.HolidayRepository
-import kotlinx.coroutines.flow.first
 
 @HiltViewModel
 class CalendarViewModel @Inject constructor(
