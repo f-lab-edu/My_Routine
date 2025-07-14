@@ -107,7 +107,7 @@ dependencies {
 
     // Retrofit
     implementation(libs.retrofit)
-    implementation(libs.converter.jackson)
+    implementation(libs.converter.gson)
     implementation(libs.logging.interceptor)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
