@@ -8,6 +8,7 @@ plugins {
 
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
+    id("kotlin-kapt")
 }
 
 hilt {
@@ -112,7 +113,7 @@ dependencies {
 
     implementation(libs.tikxml.annotation)
     implementation(libs.tikxml.core)
-    ksp(libs.tikxml.processor)
+    kapt(libs.tikxml.processor)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
