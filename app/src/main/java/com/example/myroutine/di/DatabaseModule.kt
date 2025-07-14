@@ -2,6 +2,7 @@ package com.example.myroutine.di
 
 import android.content.Context
 import androidx.room.Room
+import com.example.myroutine.data.local.dao.HolidayCacheMetadataDao
 import com.example.myroutine.data.local.dao.HolidayDao
 import com.example.myroutine.data.local.dao.RoutineCheckDao
 import com.example.myroutine.data.local.dao.RoutineDao
@@ -25,7 +26,7 @@ object DatabaseModule {
             AppDatabase::class.java,
             "my-routine-db"
         )
-            .fallbackToDestructiveMigration()
+            .fallbackToDestructiveMigration(true)
             .build()
     }
 
