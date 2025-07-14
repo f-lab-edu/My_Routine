@@ -16,7 +16,7 @@ import java.time.LocalDate
 
 /**
  * RoutineRepositoryImpl의 기능을 테스트하는 클래스입니다.
- * Mockk 라이브러리를 사용하여 DAO(Data Access Object)를 목킹하고,
+ * Mockk 라이브러리를 사용하여 DAO(Data Access Object)와 HolidayRepository를 목킹하고,
  * kotlinx-coroutines-test를 사용하여 코루틴 테스트를 수행합니다.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -31,13 +31,16 @@ class RoutineRepositoryImplTest {
     // Mockk으로 생성된 RoutineCheckDao 인스턴스
     private val checkDao: RoutineCheckDao = mockk()
 
+    // Mockk으로 생성된 HolidayRepository 인스턴스
+    private val holidayRepository: HolidayRepository = mockk()
+
     /**
      * 각 테스트 실행 전에 호출되는 초기화 함수입니다.
-     * - 목킹된 DAO를 사용하여 RoutineRepositoryImpl 인스턴스를 생성합니다.
+     * - 목킹된 DAO와 HolidayRepository를 사용하여 RoutineRepositoryImpl 인스턴스를 생성합니다.
      */
     @Before
     fun setup() {
-        repository = RoutineRepositoryImpl(routineDao, checkDao)
+        repository = RoutineRepositoryImpl(routineDao, checkDao, holidayRepository)
     }
 
     /**
@@ -54,10 +57,6 @@ class RoutineRepositoryImplTest {
             RoutineCheck(routineId = 1, completeDate = LocalDate.of(2024, 7, 1)),
             RoutineCheck(routineId = 2, completeDate = LocalDate.of(2024, 7, 3)),
             RoutineCheck(routineId = 1, completeDate = LocalDate.of(2024, 7, 7))
-        )
-        val checksOutsidePeriod = listOf(
-            RoutineCheck(routineId = 3, completeDate = LocalDate.of(2024, 6, 30)),
-            RoutineCheck(routineId = 4, completeDate = LocalDate.of(2024, 7, 8))
         )
 
         // When: checkDao.getChecksForPeriod가 호출될 때, checksInPeriod를 반환하도록 목킹합니다.
@@ -84,7 +83,7 @@ class RoutineRepositoryImplTest {
             title = "Daily Routine",
             repeatType = RepeatType.EVERY_X_DAYS,
             repeatIntervalDays = 1,
-            startDate = LocalDate.of(2024, 7, 1)  // 시작일도 명시해주는 게 좋아요
+            startDate = LocalDate.of(2024, 7, 1)
         ) // 매일 적용 가능
         val routine2 = RoutineItem.mock(
             id = 2,
@@ -105,12 +104,6 @@ class RoutineRepositoryImplTest {
         // Then: getRoutineItemsForPeriod를 호출하고 결과가 예상과 일치하는지 단언합니다.
         val result = repository.getRoutineItemsForPeriod(startDate, endDate)
 
-        println("Result routines:")
-        result.forEach { println("- ${it.title} (id=${it.id})") }
-
-        // routine1은 포함되어야 합니다 (매일 적용 가능).
-        // routine2는 포함되어야 합니다 (7월 1일 월요일에 적용 가능).
-        // routine3은 제외되어야 합니다 (특정 날짜가 기간 밖에 있음).
         assertEquals(2, result.size)
         assert(result.contains(routine1))
         assert(result.contains(routine2))
