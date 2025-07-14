@@ -11,6 +11,9 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import javax.inject.Singleton
 
+import org.simpleframework.xml.convert.AnnotationStrategy
+import retrofit2.converter.simplexml.SimpleXmlConverterFactory
+
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
@@ -38,6 +41,7 @@ object NetworkModule {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
+            .addConverterFactory(SimpleXmlConverterFactory.createNonStrict(org.simpleframework.xml.core.Persister(AnnotationStrategy())))
             .build()
     }
 
