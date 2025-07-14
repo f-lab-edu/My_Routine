@@ -68,10 +68,10 @@ androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx"
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "logging-interceptor" }
 
-tikxml-annotation = { group = "com.tickaroo.tikxml", name = "annotation", version = "0.8.15" }
-tikxml-core = { group = "com.tickaroo.tikxml", name = "core", version = "0.8.15" }
-tikxml-processor = { group = "com.tickaroo.tikxml", name = "processor", version = "0.8.15" }
-tikxml-retrofit-converter = { group = "com.tickaroo.tikxml", name = "retrofit-converter", version = "0.8.15" }
+tikxml-annotation = { group = "com.tickaroo.tikxml", name = "annotation", version = "0.8.13" }
+tikxml-core = { group = "com.tickaroo.tikxml", name = "core", version = "0.8.13" }
+tikxml-processor = { group = "com.tickaroo.tikxml", name = "processor", version = "0.8.13" }
+tikxml-retrofit-converter = { group = "com.tickaroo.tikxml", name = "retrofit-converter", version = "0.8.13" }
 
 
 [plugins]

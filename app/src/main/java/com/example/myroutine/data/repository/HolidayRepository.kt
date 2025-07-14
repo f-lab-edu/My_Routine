@@ -5,8 +5,6 @@ import com.example.myroutine.common.L
 import com.example.myroutine.data.dto.Body
 import com.example.myroutine.data.dto.Header
 import com.example.myroutine.data.dto.HolidayDto
-import com.example.myroutine.data.dto.Items
-import com.example.myroutine.data.dto.Response
 import com.example.myroutine.data.local.dao.HolidayCacheMetadataDao
 import com.example.myroutine.data.local.entity.HolidayCacheMetadata
 import com.example.myroutine.data.source.local.HolidayLocalDataSource
@@ -46,14 +44,12 @@ class HolidayRepository @Inject constructor(
             L.d(TAG, "Using cached holidays data")
 
             val cachedResponse = HolidayDto(
-                response = Response(
-                    header = Header("00", "NORMAL SERVICE"),
-                    body = Body(
-                        items = Items(cachedHolidays),
-                        numOfRows = cachedHolidays.size,
-                        pageNo = 1,
-                        totalCount = cachedHolidays.size
-                    )
+                header = Header("00", "NORMAL SERVICE"),
+                body = Body(
+                    item = cachedHolidays,
+                    numOfRows = cachedHolidays.size,
+                    pageNo = 1,
+                    totalCount = cachedHolidays.size
                 )
             )
             L.d(TAG, "Returning cached HolidayDto: $cachedResponse")
@@ -73,22 +69,19 @@ class HolidayRepository @Inject constructor(
             }
         } catch (e: Exception) {
             L.e(TAG, "API call failed", e)
-            // 필요하면 기본값 반환하거나, 예외 재발생 시키기
             return HolidayDto(
-                response = Response(
-                    header = Header("99", "API CALL FAILED"),
-                    body = Body(
-                        items = Items(emptyList()),
-                        numOfRows = 0,
-                        pageNo = 1,
-                        totalCount = 0
-                    )
+                header = Header("99", "API CALL FAILED"),
+                body = Body(
+                    item = emptyList(),
+                    numOfRows = 0,
+                    pageNo = 1,
+                    totalCount = 0
                 )
             )
         }
         L.d(TAG, "Received API response: $apiResponse")
 
-        apiResponse.response.body.items.item?.let { holidays ->
+        apiResponse.body.item?.let { holidays ->
             L.d(TAG, "API response holiday items count: ${holidays.size}")
             L.d(TAG, "Deleting old holidays cache for month")
             holidayLocalDataSource.deleteHolidaysByMonth(startDate, endDate)
@@ -104,7 +97,7 @@ class HolidayRepository @Inject constructor(
             L.d(TAG, "Updating cache metadata: $newMetadata")
             holidayCacheMetadataDao.insert(newMetadata)
         } ?: run {
-            L.d(TAG, "API response body.items.item is null or empty")
+            L.d(TAG, "API response body.item is null or empty")
         }
 
         L.d(TAG, "Returning API response")

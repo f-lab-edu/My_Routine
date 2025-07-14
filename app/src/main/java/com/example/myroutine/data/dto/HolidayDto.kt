@@ -2,9 +2,10 @@ package com.example.myroutine.data.dto
 
 import androidx.room.Entity
 import com.tickaroo.tikxml.annotation.Element
-import com.tickaroo.tikxml.annotation.Path
 import com.tickaroo.tikxml.annotation.PropertyElement
 import com.tickaroo.tikxml.annotation.Xml
+import retrofit2.http.Path
+
 
 @Xml(name = "response")
 data class HolidayDto(

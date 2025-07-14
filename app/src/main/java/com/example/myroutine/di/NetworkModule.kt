@@ -40,7 +40,7 @@ object NetworkModule {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(TikXmlConverterFactory.createFactory(TikXml.Builder().exceptionOnUnreadXml(false).build()))
+            .addConverterFactory(TikXmlConverterFactory.create(TikXml.Builder().exceptionOnUnreadXml(false).build()))
             .build()
     }
 
