@@ -14,8 +14,12 @@ import java.time.LocalTime
 import java.util.Calendar
 import javax.inject.Inject
 
+import com.example.myroutine.data.repository.HolidayRepository
+import kotlinx.coroutines.runBlocking
+
 class AlarmSchedulerImpl @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val holidayRepository: HolidayRepository
 ): AlarmScheduler {
     override fun schedule(routine: RoutineItem) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -25,7 +29,7 @@ class AlarmSchedulerImpl @Inject constructor(
 
         val alarmTime = routine.alarmTime ?: return
 
-        val nextTriggerTime = calculateNextAlarmTime(routine) ?: return
+        val nextTriggerTime = runBlocking { calculateNextAlarmTime(routine) } ?: return
 
         val intent = Intent(context, AlarmReceiver::class.java).apply {
             putExtra("ROUTINE_ID", routine.id)
@@ -63,7 +67,7 @@ class AlarmSchedulerImpl @Inject constructor(
     }
 
 
-    override fun calculateNextAlarmTime(routine: RoutineItem): Long? {
+    override suspend fun calculateNextAlarmTime(routine: RoutineItem): Long? {
         val nowMillis = System.currentTimeMillis()
 
         fun toMillis(date: LocalDate, time: LocalTime): Long {
@@ -80,11 +84,9 @@ class AlarmSchedulerImpl @Inject constructor(
             return cal.timeInMillis
         }
 
-        // TODO: 실제 공휴일 체크 로직 구현 예정
-        fun isHoliday(date: LocalDate): Boolean {
-            // 임시로 주말만 공휴일로 간주
-            val day = date.dayOfWeek.value
-            return day == 6 || day == 7
+        suspend fun isHoliday(date: LocalDate): Boolean {
+            val holidayResponse = holidayRepository.getHolidayInfo(date.year, date.monthValue)
+            return holidayResponse.response.body.items.item.any { it.locdate == date.year * 10000 + date.monthValue * 100 + date.dayOfMonth && it.isHoliday == "Y" }
         }
 
         val alarmTime = routine.alarmTime ?: return null

@@ -22,9 +22,13 @@ data class CalendarDay(
     val isHoliday: Boolean
 )
 
+import com.example.myroutine.data.repository.HolidayRepository
+import kotlinx.coroutines.flow.first
+
 @HiltViewModel
 class CalendarViewModel @Inject constructor(
-    private val routineRepository: RoutineRepository
+    private val routineRepository: RoutineRepository,
+    private val holidayRepository: HolidayRepository
 ) : ViewModel() {
 
     internal val _currentMonth = MutableStateFlow(YearMonth.now())
@@ -33,7 +37,6 @@ class CalendarViewModel @Inject constructor(
     internal val _selectedDate = MutableStateFlow(LocalDate.now())
     val selectedDate: StateFlow<LocalDate> = _selectedDate.asStateFlow()
 
-    // Placeholder for holidays. Will be fetched from API later.
     private val _holidays = MutableStateFlow<Set<LocalDate>>(emptySet())
     val holidays: StateFlow<Set<LocalDate>> = _holidays.asStateFlow()
 
@@ -52,6 +55,26 @@ class CalendarViewModel @Inject constructor(
         viewModelScope.launch {
             _selectedDate.collect { date ->
                 _routinesForSelectedDate.value = routineRepository.getTodayRoutines(date)
+            }
+        }
+        viewModelScope.launch {
+            _currentMonth.collect { yearMonth ->
+                fetchHolidays(yearMonth.year, yearMonth.monthValue)
+            }
+        }
+    }
+
+    private fun fetchHolidays(year: Int, month: Int) {
+        viewModelScope.launch {
+            try {
+                val holidayResponse = holidayRepository.getHolidayInfo(year, month)
+                val holidayDates = holidayResponse.response.body.items.item
+                    .filter { it.isHoliday == "Y" }
+                    .map { LocalDate.of(it.locdate / 10000, (it.locdate % 10000) / 100, it.locdate % 100) }
+                    .toSet()
+                _holidays.value = holidayDates
+            } catch (e: Exception) {
+                // Handle error
             }
         }
     }
