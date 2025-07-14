@@ -1,7 +1,6 @@
 package com.example.myroutine.data.dto
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 
 data class HolidayDto(
     val response: Response
