@@ -15,7 +15,7 @@ import javax.inject.Inject
 import kotlin.collections.isNotEmpty
 
 
-class HolidayRepository @Inject constructor(
+open class HolidayRepository @Inject constructor(
     private val holidayApiService: HolidayApiService,
     private val holidayLocalDataSource: HolidayLocalDataSource,
     private val holidayCacheMetadataDao: HolidayCacheMetadataDao
@@ -25,7 +25,7 @@ class HolidayRepository @Inject constructor(
         private const val TAG = "HolidayRepository"
     }
 
-    suspend fun getHolidayInfo(year: Int, month: Int): HolidayDto {
+    open suspend fun getHolidayInfo(year: Int, month: Int): HolidayDto {
         L.d(TAG, "getHolidayInfo called with year=$year, month=$month")
 
         val startDate = year * 10000 + month * 100 + 1
