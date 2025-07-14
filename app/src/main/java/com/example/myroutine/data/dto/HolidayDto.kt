@@ -1,5 +1,8 @@
 package com.example.myroutine.data.dto
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
 data class HolidayDto(
     val response: Response
 )
@@ -25,6 +28,7 @@ data class Items(
     val item: List<HolidayItem>
 )
 
+@Entity(primaryKeys = ["locdate", "seq"])
 data class HolidayItem(
     val dateKind: String,
     val dateName: String,
