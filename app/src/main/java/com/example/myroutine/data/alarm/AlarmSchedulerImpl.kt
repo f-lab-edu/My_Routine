@@ -27,7 +27,7 @@ class AlarmSchedulerImpl @Inject constructor(
         // 기존 알람 취소
         cancel(routine.id)
 
-        val alarmTime = routine.alarmTime ?: return
+        routine.alarmTime ?: return
 
         val nextTriggerTime = runBlocking { calculateNextAlarmTime(routine) } ?: return
 
