@@ -5,12 +5,14 @@ import com.example.myroutine.common.L
 import com.example.myroutine.data.dto.Body
 import com.example.myroutine.data.dto.Header
 import com.example.myroutine.data.dto.HolidayDto
+import com.example.myroutine.data.dto.Items
 import com.example.myroutine.data.local.dao.HolidayCacheMetadataDao
 import com.example.myroutine.data.local.entity.HolidayCacheMetadata
 import com.example.myroutine.data.source.local.HolidayLocalDataSource
 import com.example.myroutine.data.source.remote.HolidayApiService
 import java.time.LocalDate
 import javax.inject.Inject
+import kotlin.collections.isNotEmpty
 
 
 class HolidayRepository @Inject constructor(
@@ -46,7 +48,7 @@ class HolidayRepository @Inject constructor(
             val cachedResponse = HolidayDto(
                 header = Header("00", "NORMAL SERVICE"),
                 body = Body(
-                    item = cachedHolidays,
+                    items = Items(cachedHolidays),
                     numOfRows = cachedHolidays.size,
                     pageNo = 1,
                     totalCount = cachedHolidays.size
@@ -72,7 +74,7 @@ class HolidayRepository @Inject constructor(
             return HolidayDto(
                 header = Header("99", "API CALL FAILED"),
                 body = Body(
-                    item = emptyList(),
+                    items = Items(emptyList()),
                     numOfRows = 0,
                     pageNo = 1,
                     totalCount = 0
@@ -81,7 +83,7 @@ class HolidayRepository @Inject constructor(
         }
         L.d(TAG, "Received API response: $apiResponse")
 
-        apiResponse.body.item?.let { holidays ->
+        apiResponse.body.items.item?.let { holidays ->
             L.d(TAG, "API response holiday items count: ${holidays.size}")
             L.d(TAG, "Deleting old holidays cache for month")
             holidayLocalDataSource.deleteHolidaysByMonth(startDate, endDate)

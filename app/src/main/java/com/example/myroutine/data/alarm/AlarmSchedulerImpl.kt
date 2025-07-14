@@ -86,8 +86,8 @@ class AlarmSchedulerImpl @Inject constructor(
 
         suspend fun isHoliday(date: LocalDate): Boolean {
             val holidayResponse = holidayRepository.getHolidayInfo(date.year, date.monthValue)
-            return holidayResponse.body.item?.any {
-                it.locdate == date.year * 10000 + date.monthValue * 100 + date.dayOfMonth && it.isHoliday == "Y"
+            return holidayResponse.body.items.item?.any {
+                it.locdate == date.year * 10000 + date.monthValue * 100 + date.dayOfMonth && it.holidayFlag == "Y"
             } ?: false
         }
 

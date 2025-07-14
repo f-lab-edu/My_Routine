@@ -66,8 +66,8 @@ class CalendarViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val holidayResponse = holidayRepository.getHolidayInfo(year, month)
-                val holidayDates = holidayResponse.body.item
-                    ?.filter { it.isHoliday == "Y" }
+                val holidayDates = holidayResponse.body.items.item
+                    ?.filter { it.holidayFlag == "Y" }
                     ?.map { LocalDate.of(it.locdate / 10000, (it.locdate % 10000) / 100, it.locdate % 100) }
                     ?.toSet() ?: emptySet()
                 _holidays.value = holidayDates

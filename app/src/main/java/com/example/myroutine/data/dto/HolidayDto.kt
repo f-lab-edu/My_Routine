@@ -4,8 +4,6 @@ import androidx.room.Entity
 import com.tickaroo.tikxml.annotation.Element
 import com.tickaroo.tikxml.annotation.PropertyElement
 import com.tickaroo.tikxml.annotation.Xml
-import retrofit2.http.Path
-
 
 @Xml(name = "response")
 data class HolidayDto(
@@ -25,14 +23,20 @@ data class Header(
 
 @Xml(name = "body")
 data class Body(
-    @Path("items") @Element(name = "item")
-    val item: List<HolidayItem>?,
+    @Element(name = "items")
+    val items: Items,
     @PropertyElement(name = "numOfRows")
     val numOfRows: Int,
     @PropertyElement(name = "pageNo")
     val pageNo: Int,
     @PropertyElement(name = "totalCount")
     val totalCount: Int
+)
+
+@Xml(name = "items")
+data class Items(
+    @Element(name = "item")
+    val item: List<HolidayItem>?
 )
 
 @Entity(primaryKeys = ["locdate", "seq"])
@@ -43,7 +47,7 @@ data class HolidayItem(
     @PropertyElement(name = "dateName")
     val dateName: String,
     @PropertyElement(name = "isHoliday")
-    val isHoliday: String,
+    val holidayFlag: String,
     @PropertyElement(name = "locdate")
     val locdate: Int,
     @PropertyElement(name = "seq")
