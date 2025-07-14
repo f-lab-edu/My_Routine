@@ -1,69 +1,50 @@
 package com.example.myroutine.data.dto
 
 import androidx.room.Entity
-import org.simpleframework.xml.Element
-import org.simpleframework.xml.ElementList
-import org.simpleframework.xml.Root
+import com.tickaroo.tikxml.annotation.Element
+import com.tickaroo.tikxml.annotation.Path
+import com.tickaroo.tikxml.annotation.PropertyElement
+import com.tickaroo.tikxml.annotation.Xml
 
-@Root(name = "response", strict = false)
+@Xml(name = "response")
 data class HolidayDto(
-    @field:Element(name = "header")
-    @param:Element(name = "header")
+    @Element(name = "header")
     val header: Header,
-    @field:Element(name = "body")
-    @param:Element(name = "body")
+    @Element(name = "body")
     val body: Body
 )
 
-@Root(name = "header", strict = false)
+@Xml(name = "header")
 data class Header(
-    @field:Element(name = "resultCode")
-    @param:Element(name = "resultCode")
+    @PropertyElement(name = "resultCode")
     val resultCode: String,
-    @field:Element(name = "resultMsg")
-    @param:Element(name = "resultMsg")
+    @PropertyElement(name = "resultMsg")
     val resultMsg: String
 )
 
-@Root(name = "body", strict = false)
+@Xml(name = "body")
 data class Body(
-    @field:Element(name = "items")
-    @param:Element(name = "items")
-    val items: Items,
-    @field:Element(name = "numOfRows")
-    @param:Element(name = "numOfRows")
+    @Path("items") @Element(name = "item")
+    val item: List<HolidayItem>?,
+    @PropertyElement(name = "numOfRows")
     val numOfRows: Int,
-    @field:Element(name = "pageNo")
-    @param:Element(name = "pageNo")
+    @PropertyElement(name = "pageNo")
     val pageNo: Int,
-    @field:Element(name = "totalCount")
-    @param:Element(name = "totalCount")
+    @PropertyElement(name = "totalCount")
     val totalCount: Int
 )
 
-@Root(name = "items", strict = false)
-data class Items(
-    @field:ElementList(inline = true, required = false)
-    @param:ElementList(inline = true, required = false)
-    val item: List<HolidayItem>?
-)
-
 @Entity(primaryKeys = ["locdate", "seq"])
-@Root(name = "item", strict = false)
+@Xml(name = "item")
 data class HolidayItem(
-    @field:Element(name = "dateKind")
-    @param:Element(name = "dateKind")
+    @PropertyElement(name = "dateKind")
     val dateKind: String,
-    @field:Element(name = "dateName")
-    @param:Element(name = "dateName")
+    @PropertyElement(name = "dateName")
     val dateName: String,
-    @field:Element(name = "isHoliday")
-    @param:Element(name = "isHoliday")
+    @PropertyElement(name = "isHoliday")
     val isHoliday: String,
-    @field:Element(name = "locdate")
-    @param:Element(name = "locdate")
+    @PropertyElement(name = "locdate")
     val locdate: Int,
-    @field:Element(name = "seq")
-    @param:Element(name = "seq")
+    @PropertyElement(name = "seq")
     val seq: Int
 )

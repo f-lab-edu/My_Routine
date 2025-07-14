@@ -10,9 +10,8 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import javax.inject.Singleton
-
-import org.simpleframework.xml.convert.AnnotationStrategy
-import retrofit2.converter.simplexml.SimpleXmlConverterFactory
+import com.tickaroo.tikxml.TikXml
+import com.tickaroo.tikxml.retrofit.TikXmlConverterFactory
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -41,7 +40,7 @@ object NetworkModule {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(SimpleXmlConverterFactory.createNonStrict(org.simpleframework.xml.core.Persister(AnnotationStrategy())))
+            .addConverterFactory(TikXmlConverterFactory.createFactory(TikXml.Builder().exceptionOnUnreadXml(false).build()))
             .build()
     }
 

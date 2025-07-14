@@ -107,8 +107,12 @@ dependencies {
 
     // Retrofit
     implementation(libs.retrofit)
-    implementation(libs.converter.simplexml)
+    implementation(libs.tikxml.retrofit.converter)
     implementation(libs.logging.interceptor)
+
+    implementation(libs.tikxml.annotation)
+    implementation(libs.tikxml.core)
+    ksp(libs.tikxml.processor)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
