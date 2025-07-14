@@ -18,7 +18,6 @@ import com.example.myroutine.data.local.entity.HolidayCacheMetadata
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun routineDao(): RoutineDao
-    abstract fun routineDao(): RoutineDao
     abstract fun routineCheckDao(): RoutineCheckDao
     abstract fun holidayDao(): HolidayDao
     abstract fun holidayCacheMetadataDao(): HolidayCacheMetadataDao
