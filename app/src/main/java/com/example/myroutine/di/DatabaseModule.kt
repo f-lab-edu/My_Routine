@@ -43,4 +43,9 @@ object DatabaseModule {
     fun provideHolidayDao(appDatabase: AppDatabase): HolidayDao {
         return appDatabase.holidayDao()
     }
+
+    @Provides
+    fun provideHolidayCacheMetadataDao(appDatabase: AppDatabase): HolidayCacheMetadataDao {
+        return appDatabase.holidayCacheMetadataDao()
+    }
 }
