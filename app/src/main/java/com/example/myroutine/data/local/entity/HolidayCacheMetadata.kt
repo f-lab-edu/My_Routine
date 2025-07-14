@@ -3,8 +3,9 @@ package com.example.myroutine.data.local.entity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "holiday_cache_metadata")
+@Entity(tableName = "holiday_cache_metadata", primaryKeys = ["year", "month"])
 data class HolidayCacheMetadata(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val year: Int,
+    val month: Int,
     val lastCachedTimestamp: Long
 )

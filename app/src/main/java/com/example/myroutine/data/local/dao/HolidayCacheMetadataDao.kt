@@ -11,8 +11,11 @@ interface HolidayCacheMetadataDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(metadata: HolidayCacheMetadata)
 
-    @Query("SELECT * FROM holiday_cache_metadata ORDER BY id DESC LIMIT 1")
-    suspend fun getLatestMetadata(): HolidayCacheMetadata?
+    @Query("SELECT * FROM holiday_cache_metadata WHERE year = :year AND month = :month")
+    suspend fun getMetadataByMonth(year: Int, month: Int): HolidayCacheMetadata?
+
+    @Query("DELETE FROM holiday_cache_metadata WHERE year = :year AND month = :month")
+    suspend fun deleteMetadataByMonth(year: Int, month: Int)
 
     @Query("DELETE FROM holiday_cache_metadata")
     suspend fun deleteAll()

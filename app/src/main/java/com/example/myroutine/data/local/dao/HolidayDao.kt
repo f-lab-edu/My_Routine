@@ -14,6 +14,9 @@ interface HolidayDao {
     @Query("SELECT * FROM HolidayItem WHERE locdate BETWEEN :startDate AND :endDate")
     suspend fun getHolidaysByMonth(startDate: Int, endDate: Int): List<HolidayItem>
 
+    @Query("DELETE FROM HolidayItem WHERE locdate BETWEEN :startDate AND :endDate")
+    suspend fun deleteHolidaysByMonth(startDate: Int, endDate: Int)
+
     @Query("DELETE FROM HolidayItem")
     suspend fun deleteAll()
 }

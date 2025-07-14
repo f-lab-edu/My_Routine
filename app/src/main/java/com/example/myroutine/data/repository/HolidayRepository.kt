@@ -14,7 +14,6 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 
-
 class HolidayRepository @Inject constructor(
     private val holidayApiService: HolidayApiService,
     private val holidayLocalDataSource: HolidayLocalDataSource,
@@ -28,11 +27,12 @@ class HolidayRepository @Inject constructor(
         val startDate = year * 10000 + month * 100 + 1
         val endDate = year * 10000 + month * 100 + LocalDate.of(year, month, 1).lengthOfMonth()
 
-        val cachedHolidays = holidayLocalDataSource.getHolidaysByMonth(startDate, endDate)
-        val lastCachedMetadata = holidayCacheMetadataDao.getLatestMetadata()
+        val lastCachedMetadata = holidayCacheMetadataDao.getMetadataByMonth(year, month)
 
         val isCacheValid = lastCachedMetadata != null &&
                 (System.currentTimeMillis() - lastCachedMetadata.lastCachedTimestamp) < CACHE_EXPIRATION_DAYS * 24 * 60 * 60 * 1000L
+
+        val cachedHolidays = holidayLocalDataSource.getHolidaysByMonth(startDate, endDate)
 
         if (cachedHolidays.isNotEmpty() && isCacheValid) {
             // 캐시된 데이터가 있고 유효하면 HolidayDto 형태로 변환하여 반환
@@ -59,10 +59,10 @@ class HolidayRepository @Inject constructor(
         )
 
         // API 응답을 캐시에 저장하고 메타데이터 업데이트
-        apiResponse.response.body.items.item.let { holidays ->
-            holidayLocalDataSource.deleteAll() // 기존 캐시 삭제
+        apiResponse.response.body.items.item?.let { holidays ->
+            holidayLocalDataSource.deleteHolidaysByMonth(startDate, endDate) // 해당 월의 기존 캐시 삭제
             holidayLocalDataSource.insertAll(holidays)
-            holidayCacheMetadataDao.insert(HolidayCacheMetadata(lastCachedTimestamp = System.currentTimeMillis()))
+            holidayCacheMetadataDao.insert(HolidayCacheMetadata(year = year, month = month, lastCachedTimestamp = System.currentTimeMillis()))
         }
 
         return apiResponse

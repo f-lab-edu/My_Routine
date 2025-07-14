@@ -15,6 +15,10 @@ class HolidayLocalDataSource @Inject constructor(
         holidayDao.insertAll(holidays)
     }
 
+    suspend fun deleteHolidaysByMonth(startDate: Int, endDate: Int) {
+        holidayDao.deleteHolidaysByMonth(startDate, endDate)
+    }
+
     suspend fun deleteAll() {
         holidayDao.deleteAll()
     }
