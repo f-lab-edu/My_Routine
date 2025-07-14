@@ -1,6 +1,7 @@
 package com.example.myroutine.data.repository
 
 import com.example.myroutine.BuildConfig
+import com.example.myroutine.common.L
 import com.example.myroutine.data.dto.Body
 import com.example.myroutine.data.dto.Header
 import com.example.myroutine.data.dto.HolidayDto
@@ -21,22 +22,30 @@ class HolidayRepository @Inject constructor(
 ) {
     companion object {
         private const val CACHE_EXPIRATION_DAYS = 15
+        private const val TAG = "HolidayRepository"
     }
 
     suspend fun getHolidayInfo(year: Int, month: Int): HolidayDto {
+        L.d(TAG, "getHolidayInfo called with year=$year, month=$month")
+
         val startDate = year * 10000 + month * 100 + 1
         val endDate = year * 10000 + month * 100 + LocalDate.of(year, month, 1).lengthOfMonth()
+        L.d(TAG, "Computed date range: startDate=$startDate, endDate=$endDate")
 
         val lastCachedMetadata = holidayCacheMetadataDao.getMetadataByMonth(year, month)
+        L.d(TAG, "Loaded lastCachedMetadata: $lastCachedMetadata")
 
         val isCacheValid = lastCachedMetadata != null &&
                 (System.currentTimeMillis() - lastCachedMetadata.lastCachedTimestamp) < CACHE_EXPIRATION_DAYS * 24 * 60 * 60 * 1000L
+        L.d(TAG, "Cache valid? $isCacheValid")
 
         val cachedHolidays = holidayLocalDataSource.getHolidaysByMonth(startDate, endDate)
+        L.d(TAG, "Cached holidays count: ${cachedHolidays.size}")
 
         if (cachedHolidays.isNotEmpty() && isCacheValid) {
-            // 캐시된 데이터가 있고 유효하면 HolidayDto 형태로 변환하여 반환
-            return HolidayDto(
+            L.d(TAG, "Using cached holidays data")
+
+            val cachedResponse = HolidayDto(
                 response = Response(
                     header = Header("00", "NORMAL SERVICE"),
                     body = Body(
@@ -47,24 +56,58 @@ class HolidayRepository @Inject constructor(
                     )
                 )
             )
+            L.d(TAG, "Returning cached HolidayDto: $cachedResponse")
+            return cachedResponse
         }
 
         val monthString = month.toString().padStart(2, '0')
+        L.d(TAG, "Calling API with solYear=$year, solMonth=$monthString")
 
-        // 캐시된 데이터가 없거나 유효하지 않으면 API 호출
-        val apiResponse = holidayApiService.getHolidayInfo(
-            serviceKey = BuildConfig.HOLIDAY_API_KEY,
-            solYear = year,
-            solMonth = monthString
-        )
+        val apiResponse = try {
+            holidayApiService.getHolidayInfo(
+                serviceKey = BuildConfig.HOLIDAY_API_KEY,
+                solYear = year,
+                solMonth = monthString
+            ).also {
+                L.d(TAG, "API response received: $it")
+            }
+        } catch (e: Exception) {
+            L.e(TAG, "API call failed", e)
+            // 필요하면 기본값 반환하거나, 예외 재발생 시키기
+            return HolidayDto(
+                response = Response(
+                    header = Header("99", "API CALL FAILED"),
+                    body = Body(
+                        items = Items(emptyList()),
+                        numOfRows = 0,
+                        pageNo = 1,
+                        totalCount = 0
+                    )
+                )
+            )
+        }
+        L.d(TAG, "Received API response: $apiResponse")
 
-        // API 응답을 캐시에 저장하고 메타데이터 업데이트
         apiResponse.response.body.items.item?.let { holidays ->
-            holidayLocalDataSource.deleteHolidaysByMonth(startDate, endDate) // 해당 월의 기존 캐시 삭제
+            L.d(TAG, "API response holiday items count: ${holidays.size}")
+            L.d(TAG, "Deleting old holidays cache for month")
+            holidayLocalDataSource.deleteHolidaysByMonth(startDate, endDate)
+
+            L.d(TAG, "Inserting new holidays into local data source")
             holidayLocalDataSource.insertAll(holidays)
-            holidayCacheMetadataDao.insert(HolidayCacheMetadata(year = year, month = month, lastCachedTimestamp = System.currentTimeMillis()))
+
+            val newMetadata = HolidayCacheMetadata(
+                year = year,
+                month = month,
+                lastCachedTimestamp = System.currentTimeMillis()
+            )
+            L.d(TAG, "Updating cache metadata: $newMetadata")
+            holidayCacheMetadataDao.insert(newMetadata)
+        } ?: run {
+            L.d(TAG, "API response body.items.item is null or empty")
         }
 
+        L.d(TAG, "Returning API response")
         return apiResponse
     }
 }
