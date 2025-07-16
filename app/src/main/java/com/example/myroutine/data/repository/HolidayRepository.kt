@@ -22,6 +22,7 @@ open class HolidayRepository @Inject constructor(
 ) {
     companion object {
         private const val CACHE_EXPIRATION_DAYS = 15
+        private const val CACHE_EXPIRATION_MILLISECONDS = CACHE_EXPIRATION_DAYS * 24 * 60 * 60 * 1000L
         private const val TAG = "HolidayRepository"
     }
 
@@ -36,7 +37,7 @@ open class HolidayRepository @Inject constructor(
         L.d(TAG, "Loaded lastCachedMetadata: $lastCachedMetadata")
 
         val isCacheValid = lastCachedMetadata != null &&
-                (System.currentTimeMillis() - lastCachedMetadata.lastCachedTimestamp) < CACHE_EXPIRATION_DAYS * 24 * 60 * 60 * 1000L
+                (System.currentTimeMillis() - lastCachedMetadata.lastCachedTimestamp) < CACHE_EXPIRATION_MILLISECONDS
         L.d(TAG, "Cache valid? $isCacheValid")
 
         val cachedHolidays = holidayLocalDataSource.getHolidaysByMonth(startDate, endDate)
