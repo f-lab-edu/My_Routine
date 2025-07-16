@@ -47,7 +47,8 @@ class CalendarViewModel @Inject constructor(
     }
 
     private val _routinesForSelectedDate = MutableStateFlow<List<RoutineItem>>(emptyList())
-    val routinesForSelectedDate: StateFlow<List<RoutineItem>> = _routinesForSelectedDate.asStateFlow()
+    val routinesForSelectedDate: StateFlow<List<RoutineItem>> =
+        _routinesForSelectedDate.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -62,18 +63,22 @@ class CalendarViewModel @Inject constructor(
         }
     }
 
-    private fun fetchHolidays(year: Int, month: Int) {
-        viewModelScope.launch {
-            try {
-                val holidayResponse = holidayRepository.getHolidayInfo(year, month)
-                val holidayDates = holidayResponse.body.items.item
-                    ?.filter { it.holidayFlag == "Y" }
-                    ?.map { LocalDate.of(it.locdate / 10000, (it.locdate % 10000) / 100, it.locdate % 100) }
-                    ?.toSet() ?: emptySet()
-                _holidays.value = holidayDates
-            } catch (e: Exception) {
-                // Handle error
-            }
+    private suspend fun fetchHolidays(year: Int, month: Int) {
+        try {
+            val holidayResponse = holidayRepository.getHolidayInfo(year, month)
+            val holidayDates = holidayResponse.body.items.item
+                ?.filter { it.holidayFlag == "Y" }
+                ?.map {
+                    LocalDate.of(
+                        it.locdate / 10000,
+                        (it.locdate % 10000) / 100,
+                        it.locdate % 100
+                    )
+                }
+                ?.toSet() ?: emptySet()
+            _holidays.value = holidayDates
+        } catch (e: Exception) {
+            // Handle error
         }
     }
 
@@ -128,7 +133,8 @@ class CalendarViewModel @Inject constructor(
         for (i in 1..daysInMonth) {
             val date = yearMonth.atDay(i)
             val isSelected = date == selectedDate
-            val isWeekend = date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY
+            val isWeekend =
+                date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY
             val isHoliday = holidays.contains(date) // Placeholder for holiday check
             days.add(CalendarDay(date, isSelected, isWeekend, isHoliday))
         }
