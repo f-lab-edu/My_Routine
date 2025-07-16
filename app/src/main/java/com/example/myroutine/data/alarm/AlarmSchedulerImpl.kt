@@ -21,7 +21,7 @@ class AlarmSchedulerImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val holidayRepository: HolidayRepository
 ): AlarmScheduler {
-    override fun schedule(routine: RoutineItem) {
+    override suspend fun schedule(routine: RoutineItem) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
         // 기존 알람 취소
@@ -29,7 +29,7 @@ class AlarmSchedulerImpl @Inject constructor(
 
         routine.alarmTime ?: return
 
-        val nextTriggerTime = runBlocking { calculateNextAlarmTime(routine) } ?: return
+        val nextTriggerTime =  calculateNextAlarmTime(routine) ?: return
 
         val intent = Intent(context, AlarmReceiver::class.java).apply {
             putExtra("ROUTINE_ID", routine.id)
