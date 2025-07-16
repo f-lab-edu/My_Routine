@@ -1,6 +1,7 @@
 package com.example.myroutine.data.repository
 
 import android.util.Log
+import com.example.myroutine.data.dto.HolidayItem
 import com.example.myroutine.data.local.dao.RoutineCheckDao
 import com.example.myroutine.data.local.dao.RoutineDao
 import com.example.myroutine.data.local.entity.RepeatType
@@ -131,9 +132,15 @@ class RoutineRepositoryImpl @Inject constructor(
         }
     }
 
+    private val holidayCache = mutableMapOf<Pair<Int, Int>, List<HolidayItem>?>()
+
     private suspend fun isHoliday(date: LocalDate): Boolean {
-        val holidayResponse = holidayRepository.getHolidayInfo(date.year, date.monthValue)
-        return holidayResponse.body.items.item?.any {
+        val yearMonth = date.year to date.monthValue
+        val holidays = holidayCache.getOrPut(yearMonth) {
+            val holidayResponse = holidayRepository.getHolidayInfo(date.year, date.monthValue)
+            holidayResponse.body.items.item
+        }
+        return holidays?.any {
             it.locdate == date.year * 10000 + date.monthValue * 100 + date.dayOfMonth && it.holidayFlag == "Y"
         } ?: false
     }
