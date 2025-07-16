@@ -8,9 +8,17 @@ import com.example.myroutine.data.local.dao.RoutineDao
 import com.example.myroutine.data.local.entity.RoutineCheck
 import com.example.myroutine.data.local.entity.RoutineItem
 
-@Database(entities = [RoutineItem::class, RoutineCheck::class], version = 2)
+import com.example.myroutine.data.dto.HolidayItem
+import com.example.myroutine.data.local.dao.HolidayDao
+
+import com.example.myroutine.data.local.dao.HolidayCacheMetadataDao
+import com.example.myroutine.data.local.entity.HolidayCacheMetadata
+
+@Database(entities = [RoutineItem::class, RoutineCheck::class, HolidayItem::class, HolidayCacheMetadata::class], version = 6)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun routineDao(): RoutineDao
     abstract fun routineCheckDao(): RoutineCheckDao
+    abstract fun holidayDao(): HolidayDao
+    abstract fun holidayCacheMetadataDao(): HolidayCacheMetadataDao
 }

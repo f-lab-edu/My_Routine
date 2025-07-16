@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -6,6 +8,7 @@ plugins {
 
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
+    id("kotlin-kapt")
 }
 
 hilt {
@@ -23,7 +26,17 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+        val properties = Properties()
+        properties.load(project.rootProject.file("local.properties").inputStream())
+        buildConfigField("String", "HOLIDAY_API_KEY", "\"${properties.getProperty("holiday_api_key")}\"")
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    ksp {
+        arg("room.schemaLocation", "$projectDir/schemas")
+        arg("room.incremental", "true")
+        arg("room.expandProjection", "true")
     }
 
     buildTypes {
@@ -44,6 +57,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     packaging {
@@ -91,6 +105,15 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.firebase.firestore)
     implementation(libs.androidx.navigation.compose)
+
+    // Retrofit
+    implementation(libs.retrofit)
+    implementation(libs.tikxml.retrofit.converter)
+    implementation(libs.logging.interceptor)
+
+    implementation(libs.tikxml.annotation)
+    implementation(libs.tikxml.core)
+    kapt(libs.tikxml.processor)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

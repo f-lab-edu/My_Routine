@@ -14,6 +14,7 @@ import javax.inject.Inject
 import com.example.myroutine.data.repository.RoutineRepository
 import com.example.myroutine.data.local.entity.RoutineItem
 import kotlinx.coroutines.launch
+import com.example.myroutine.data.repository.HolidayRepository
 
 data class CalendarDay(
     val date: LocalDate?,
@@ -24,7 +25,8 @@ data class CalendarDay(
 
 @HiltViewModel
 class CalendarViewModel @Inject constructor(
-    private val routineRepository: RoutineRepository
+    private val routineRepository: RoutineRepository,
+    private val holidayRepository: HolidayRepository
 ) : ViewModel() {
 
     internal val _currentMonth = MutableStateFlow(YearMonth.now())
@@ -33,7 +35,6 @@ class CalendarViewModel @Inject constructor(
     internal val _selectedDate = MutableStateFlow(LocalDate.now())
     val selectedDate: StateFlow<LocalDate> = _selectedDate.asStateFlow()
 
-    // Placeholder for holidays. Will be fetched from API later.
     private val _holidays = MutableStateFlow<Set<LocalDate>>(emptySet())
     val holidays: StateFlow<Set<LocalDate>> = _holidays.asStateFlow()
 
@@ -46,7 +47,8 @@ class CalendarViewModel @Inject constructor(
     }
 
     private val _routinesForSelectedDate = MutableStateFlow<List<RoutineItem>>(emptyList())
-    val routinesForSelectedDate: StateFlow<List<RoutineItem>> = _routinesForSelectedDate.asStateFlow()
+    val routinesForSelectedDate: StateFlow<List<RoutineItem>> =
+        _routinesForSelectedDate.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -54,9 +56,31 @@ class CalendarViewModel @Inject constructor(
                 _routinesForSelectedDate.value = routineRepository.getTodayRoutines(date)
             }
         }
+        viewModelScope.launch {
+            _currentMonth.collect { yearMonth ->
+                fetchHolidays(yearMonth.year, yearMonth.monthValue)
+            }
+        }
     }
 
-    
+    private suspend fun fetchHolidays(year: Int, month: Int) {
+        try {
+            val holidayResponse = holidayRepository.getHolidayInfo(year, month)
+            val holidayDates = holidayResponse.body.items.item
+                ?.filter { it.holidayFlag == "Y" }
+                ?.map {
+                    LocalDate.of(
+                        it.locdate / 10000,
+                        (it.locdate % 10000) / 100,
+                        it.locdate % 100
+                    )
+                }
+                ?.toSet() ?: emptySet()
+            _holidays.value = holidayDates
+        } catch (e: Exception) {
+            // Handle error
+        }
+    }
 
     fun goToPreviousMonth() {
         _currentMonth.value = _currentMonth.value.minusMonths(1)
@@ -109,7 +133,8 @@ class CalendarViewModel @Inject constructor(
         for (i in 1..daysInMonth) {
             val date = yearMonth.atDay(i)
             val isSelected = date == selectedDate
-            val isWeekend = date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY
+            val isWeekend =
+                date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY
             val isHoliday = holidays.contains(date) // Placeholder for holiday check
             days.add(CalendarDay(date, isSelected, isWeekend, isHoliday))
         }

@@ -2,14 +2,16 @@ package com.example.myroutine.di
 
 import android.content.Context
 import androidx.room.Room
+import com.example.myroutine.data.local.dao.HolidayCacheMetadataDao
+import com.example.myroutine.data.local.dao.HolidayDao
 import com.example.myroutine.data.local.dao.RoutineCheckDao
 import com.example.myroutine.data.local.dao.RoutineDao
 import com.example.myroutine.data.local.database.AppDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @Module
@@ -18,19 +20,33 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideAppDatabase(
-        @ApplicationContext context: Context
-    ): AppDatabase {
+    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
         return Room.databaseBuilder(
             context,
             AppDatabase::class.java,
-            "myroutine-db"
-        ).fallbackToDestructiveMigration(true).build()
+            "my-routine-db"
+        )
+            .fallbackToDestructiveMigration(true)
+            .build()
     }
 
     @Provides
-    fun provideRoutineDao(db: AppDatabase): RoutineDao = db.routineDao()
+    fun provideRoutineDao(appDatabase: AppDatabase): RoutineDao {
+        return appDatabase.routineDao()
+    }
 
     @Provides
-    fun provideRoutineCheckDao(db: AppDatabase): RoutineCheckDao = db.routineCheckDao()
+    fun provideRoutineCheckDao(appDatabase: AppDatabase): RoutineCheckDao {
+        return appDatabase.routineCheckDao()
+    }
+
+    @Provides
+    fun provideHolidayDao(appDatabase: AppDatabase): HolidayDao {
+        return appDatabase.holidayDao()
+    }
+
+    @Provides
+    fun provideHolidayCacheMetadataDao(appDatabase: AppDatabase): HolidayCacheMetadataDao {
+        return appDatabase.holidayCacheMetadataDao()
+    }
 }

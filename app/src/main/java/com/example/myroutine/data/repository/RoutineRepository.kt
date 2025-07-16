@@ -12,7 +12,7 @@ interface RoutineRepository {
     suspend fun setRoutineChecked(routineId: Int, date: LocalDate, isChecked: Boolean)
     suspend fun getRoutineChecksForPeriod(startDate: LocalDate, endDate: LocalDate): List<RoutineCheck>
     suspend fun getRoutineItemsForPeriod(startDate: LocalDate, endDate: LocalDate): List<RoutineItem>
-    fun isRoutineApplicableForDate(routine: RoutineItem, date: LocalDate): Boolean
+    suspend fun isRoutineApplicableForDate(routine: RoutineItem, date: LocalDate): Boolean
 }
 
 

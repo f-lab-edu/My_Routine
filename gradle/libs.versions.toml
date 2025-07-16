@@ -23,6 +23,8 @@ ksp = "2.0.21-1.0.26"
 hiltCommon = "1.2.0"
 workRuntimeKtx = "2.10.2"
 workTesting = "2.10.2"
+retrofit = "3.0.0"
+logging-interceptor = "4.11.0"
 
 [libraries]
 # Hilt
@@ -62,6 +64,14 @@ firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 androidx-hilt-common = { group = "androidx.hilt", name = "hilt-common", version.ref = "hiltCommon" }
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtx" }
+
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "logging-interceptor" }
+
+tikxml-annotation = { group = "com.tickaroo.tikxml", name = "annotation", version = "0.8.13" }
+tikxml-core = { group = "com.tickaroo.tikxml", name = "core", version = "0.8.13" }
+tikxml-processor = { group = "com.tickaroo.tikxml", name = "processor", version = "0.8.13" }
+tikxml-retrofit-converter = { group = "com.tickaroo.tikxml", name = "retrofit-converter", version = "0.8.13" }
 
 
 [plugins]

@@ -1,6 +1,7 @@
 package com.example.myroutine.data.repository
 
 import android.util.Log
+import com.example.myroutine.data.dto.HolidayItem
 import com.example.myroutine.data.local.dao.RoutineCheckDao
 import com.example.myroutine.data.local.dao.RoutineDao
 import com.example.myroutine.data.local.entity.RepeatType
@@ -9,9 +10,12 @@ import com.example.myroutine.data.local.entity.RoutineItem
 import java.time.LocalDate
 import javax.inject.Inject
 
+import com.example.myroutine.data.local.entity.HolidayType
+
 class RoutineRepositoryImpl @Inject constructor(
     private val routineDao: RoutineDao,
-    private val checkDao: RoutineCheckDao
+    private val checkDao: RoutineCheckDao,
+    private val holidayRepository: HolidayRepository
 ) : RoutineRepository {
 
     private val TAG = "RoutineRepository"
@@ -105,7 +109,7 @@ class RoutineRepositoryImpl @Inject constructor(
         return routines
     }
 
-    override fun isRoutineApplicableForDate(routine: RoutineItem, date: LocalDate): Boolean {
+    override suspend fun isRoutineApplicableForDate(routine: RoutineItem, date: LocalDate): Boolean {
         return when (routine.repeatType) {
             RepeatType.NONE -> routine.specificDate == date
             RepeatType.ONCE -> routine.specificDate == date
@@ -122,9 +126,22 @@ class RoutineRepositoryImpl @Inject constructor(
                 } ?: false
             }
             RepeatType.WEEKDAY_HOLIDAY -> {
-                // TODO: Implement actual holiday check. For now, assume weekdays are not holidays.
-                date.dayOfWeek != java.time.DayOfWeek.SATURDAY && date.dayOfWeek != java.time.DayOfWeek.SUNDAY
+                val isHoliday = isHoliday(date)
+                (routine.holidayType == HolidayType.WEEKDAY && !isHoliday) || (routine.holidayType == HolidayType.HOLIDAY && isHoliday)
             }
         }
+    }
+
+    private val holidayCache = mutableMapOf<Pair<Int, Int>, List<HolidayItem>?>()
+
+    private suspend fun isHoliday(date: LocalDate): Boolean {
+        val yearMonth = date.year to date.monthValue
+        val holidays = holidayCache.getOrPut(yearMonth) {
+            val holidayResponse = holidayRepository.getHolidayInfo(date.year, date.monthValue)
+            holidayResponse.body.items.item
+        }
+        return holidays?.any {
+            it.locdate == date.year * 10000 + date.monthValue * 100 + date.dayOfMonth && it.holidayFlag == "Y"
+        } ?: false
     }
 }
