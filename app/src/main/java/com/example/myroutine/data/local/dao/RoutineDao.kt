@@ -16,7 +16,7 @@ interface RoutineDao {
     suspend fun insertAll(routines: List<RoutineItem>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(routine: RoutineItem)
+    suspend fun insert(routine: RoutineItem): Long
 
     @Query("""
         SELECT * FROM RoutineItem

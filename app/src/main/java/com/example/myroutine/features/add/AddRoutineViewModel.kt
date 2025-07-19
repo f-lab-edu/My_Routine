@@ -190,10 +190,11 @@ class AddRoutineViewModel @Inject constructor(
         L.d(this::class.simpleName.toString(), "Saving routine: $routine")
 
         viewModelScope.launch {
-            repository.insertRoutine(routine)
+            val newId = repository.insertRoutine(routine)
             if (routine.alarmTime != null) {
                 try {
-                    alarmScheduler.schedule(routine)
+                    val routineWithId = routine.copy(id = newId.toInt())
+                    alarmScheduler.schedule(routineWithId)
                 } catch (e: Exception) {
                     L.e(this@AddRoutineViewModel::class.simpleName.toString(), "Failed to schedule alarm", e)
                 }

@@ -20,8 +20,8 @@ class RoutineRepositoryImpl @Inject constructor(
 
     private val TAG = "RoutineRepository"
 
-    override suspend fun insertRoutine(routine: RoutineItem) {
-        routineDao.insert(routine)
+    override suspend fun insertRoutine(routine: RoutineItem): Long {
+        return routineDao.insert(routine)
     }
 
     override suspend fun getRoutines(): List<RoutineItem> {
