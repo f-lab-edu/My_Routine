@@ -55,4 +55,7 @@
     <string name="report_na">해당 없음</string>
     <string name="report_most_kept_routine_with_count">%1$s (%2$d회)</string>
     <string name="report_most_missed_routine_with_count">%1$s (%2$d회)</string>
+    <string name="permission_allow">권한 허용</string>
+    <string name="notification_permission_title">알림 권한 필요</string>
+    <string name="notification_permission_text">앱에서 알림을 보내려면 알림 권한을 허용해 주세요.</string>
 </resources>
